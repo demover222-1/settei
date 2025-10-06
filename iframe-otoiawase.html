@@ -339,7 +339,7 @@ form.addEventListener("submit", (e)=>{
   const submitBtn = document.getElementById("submitBtn");
   submitBtn.disabled=true; submitBtn.textContent="送信中...";
   const colors = collectColors();
-  const data = { colorApplyForm:true, webappurl, selectedStyle:document.getElementById("styleSelect").value, ...colors, form: "otoiawase" };                        　　　　　　　               //変更
+  const data = { colorApplyForm:true, webappurl, selectedStyle:document.getElementById("styleSelect").value, ...colors, form: "otoiawase" };                                              //変更
   fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(data) })
     .then(res=>res.text()).then(()=>alert("反映が完了しました"))
     .catch(()=>{ errorMessage.style.display="block"; })
@@ -361,4 +361,5 @@ document.getElementById("backBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
+
 
