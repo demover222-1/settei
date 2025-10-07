@@ -203,46 +203,46 @@ let fetchedColors = {};
 let bgimageCache = "";
 
 const styleDefaults = {
-  "style.css": {                                                                                                  //変更
-		  pageTitleColor:"#3399cc", 
-		  labelColor:"#6b5b4d", 
-		  colorInputPlaceholder:"#a8a8a8", 
-		  colorInputText:"#000000", 
-		  formBg:"#ffffff", 
-		  inputBg:"#f0fbff", 
-		  buttonTextColor:"#ffffff", 
-		  buttonBg:"#a3d9ff", 
-		  borderInput:"#a3d9ff", 
-		  inputFocusBorder:"#00d5ff" 
-	},
-  "style_huwa.css": { 
-		  pageTitleColor:"#ffa1f8", 
-		  labelColor:"#6b5b4d", 
-		  colorInputPlaceholder:"#a8a8a8", 
-		  colorInputText:"#000000", 
-		  formBg:"#ffffff", 
-		  inputBg:"#faf7f3", 
-		  buttonTextColor:"#ffffff", 
-		  buttonBg:"#f8d9e1", 
-		  borderInput:"#f8d9e1",
-		  inputFocusBorder:"#f6c7d6"
-	},																													
-  "style_luxury.css": { 
-		  pageTitleColor:"#d4af37",
-		  labelColor:"#111111",
-		  colorInputPlaceholder:"#a8a8a8",
-		  colorInputText:"#000000",
-		  formBg:"#ffffff",
-		  inputBg:"#ffffff",
-		  buttonTextColor:"#111111",
-		  buttonBg:"#f8e5a1",
-		  borderInput:"#f8e5a1",
-		  inputFocusBorder:"#f1d77e"
-    }
+  "style.css": {
+    pageTitleColor:"#3399cc",
+    labelColor:"#6b5b4d",
+    colorInputPlaceholder:"#a8a8a8",
+    colorInputText:"#000000",
+    formBg:"#ffffff",
+    inputBg:"#f0fbff",
+    buttonTextColor:"#ffffff",
+    buttonBg:"#a3d9ff",
+    borderInput:"#a3d9ff",
+    inputFocusBorder:"#00d5ff"
+  },
+  "style_huwa.css": {
+    pageTitleColor:"#ffa1f8",
+    labelColor:"#6b5b4d",
+    colorInputPlaceholder:"#a8a8a8",
+    colorInputText:"#000000",
+    formBg:"#ffffff",
+    inputBg:"#faf7f3",
+    buttonTextColor:"#ffffff",
+    buttonBg:"#f8d9e1",
+    borderInput:"#f8d9e1",
+    inputFocusBorder:"#f6c7d6"
+  },
+  "style_luxury.css": {
+    pageTitleColor:"#d4af37",
+    labelColor:"#111111",
+    colorInputPlaceholder:"#a8a8a8",
+    colorInputText:"#000000",
+    formBg:"#ffffff",
+    inputBg:"#ffffff",
+    buttonTextColor:"#111111",
+    buttonBg:"#f8e5a1",
+    borderInput:"#f8e5a1",
+    inputFocusBorder:"#f1d77e"
+  }
 };
 
 function updateIframe(colors, bgimage="") {
-  let url = "https://demover222-1.github.io/sinkitouroku/?" +                                                                                                  //変更
+  let url = "https://demover222-1.github.io/sinkitouroku/?" +
     "webappurl=" + webappurl +
     "&pageTitleColor=" + encodeURIComponent(colors.pageTitleColor) +
     "&labelColor=" + encodeURIComponent(colors.labelColor) +
@@ -260,7 +260,9 @@ function updateIframe(colors, bgimage="") {
 }
 
 function applyColorsToFormAndIframe(colors, bgimage="") {
-  Object.keys(colors).forEach(k => { if(document.getElementById(k)) document.getElementById(k).value = colors[k]; });
+  Object.keys(colors).forEach(k => {
+    if(document.getElementById(k)) document.getElementById(k).value = colors[k];
+  });
   updateIframe(colors, bgimage);
 }
 
@@ -278,11 +280,21 @@ function getColorsForStyle(style, forceDefaults=false) {
   return colors;
 }
 
+function collectColors() {
+  const colors={};
+  document.querySelectorAll(".color-list input[type=color]").forEach(input => colors[input.id]=input.value);
+  return colors;
+}
 
 window.onload = function() {
   const bgImageLink = document.getElementById("bgImageLink");
   if(webappurl) bgImageLink.href = webappurl;
-  fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ webappurl, getColorData:true, form:"sinkitouroku" }) })                                       //変更
+
+  fetch(webhookURL, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ webappurl, getColorData:true, form:"sinkitouroku" })
+  })
     .then(res => res.text())
     .then(text => {
       try { fetchedColors = JSON.parse(text); } catch(e){ fetchedColors = {}; }
@@ -290,9 +302,11 @@ window.onload = function() {
       document.getElementById("styleSelect").value = selectedStyle;
       bgimageCache = fetchedColors.bgimage || "";
       applyColorsToFormAndIframe(getColorsForStyle(selectedStyle), bgimageCache);
-    }).catch(err=>console.error(err));
+    })
+    .catch(err => console.error(err));
 };
 
+// 背景画像適用ボタン
 document.getElementById("applyBtn").addEventListener("click", () => {
   const btn = document.getElementById("applyBtn");
   const originalText = btn.textContent;
@@ -304,59 +318,40 @@ document.getElementById("applyBtn").addEventListener("click", () => {
     const val = input.value.toLowerCase();
     colors[input.id] = (val === "#fffffe") ? defaults[input.id] : val;
   });
-  fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ webappurl, getColorData:true, form:"sinkitouroku" }) })                                       //変更
-    .then(res=>res.text())
-    .then(text=>{ try { const data = JSON.parse(text); bgimageCache=data.bgimage||""; } catch(e){ console.error(e); } })
+  fetch(webhookURL, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ webappurl, getColorData:true, form:"sinkitouroku" })
+  })
+    .then(res => res.text())
+    .then(text=>{ 
+      try { const data = JSON.parse(text); bgimageCache=data.bgimage||""; } catch(e){ console.error(e); }
+    })
     .finally(()=>{ updateIframe(colors, bgimageCache); btn.disabled=false; btn.textContent=originalText; });
 });
 
+// スタイル変更時
 document.getElementById("styleSelect").addEventListener("change", ()=>{
   const selectedStyle = document.getElementById("styleSelect").value;
   const defaults = styleDefaults[selectedStyle];
-
-  // 現在のフォーム色を取得
   const currentColors = collectColors();
-
-	
-
-  // デフォルトとマージ（ユーザーが変更していない場合のみデフォルトを適用）
-	const prevStyle = document.getElementById("styleSelect").dataset.prevStyle || "style.css";
-mergedColors[key] = currentColors[key] === styleDefaults[prevStyle]?.[key] ? defaults[key] : currentColors[key];
-
+  const prevStyle = document.getElementById("styleSelect").dataset.prevStyle || "style.css";
   const mergedColors = {};
   for(let key in defaults){
-    // currentColors[key] が styleDefaults に一致している場合は新しいデフォルトを適用
-    mergedColors[key] = currentColors[key] === styleDefaults[document.getElementById("styleSelect").dataset.prevStyle]?.[key]
-                        ? defaults[key]
-                        : currentColors[key];
+    mergedColors[key] = currentColors[key] === styleDefaults[prevStyle]?.[key] ? defaults[key] : currentColors[key];
   }
-
   applyColorsToFormAndIframe(mergedColors, bgimageCache);
-
-  // 今のスタイルを記録
   document.getElementById("styleSelect").dataset.prevStyle = selectedStyle;
 });
 
-
-  // 現在のフォーム色を取得
-  const currentColors = collectColors();
-
-  // デフォルトとマージ（未設定は defaults）
-  const mergedColors = {};
-  for(let key in defaults){
-    mergedColors[key] = currentColors[key] || defaults[key];
-  }
-
-  applyColorsToFormAndIframe(mergedColors, bgimageCache);
-});
-
-
+// リセット
 document.getElementById("resetBtn").addEventListener("click", ()=>{
   const selectedStyle = fetchedColors.selectedStyle || "style.css";
   document.getElementById("styleSelect").value = selectedStyle;
   applyColorsToFormAndIframe(getColorsForStyle(selectedStyle), bgimageCache);
 });
 
+// 初期化
 document.getElementById("initBtn").addEventListener("click", ()=>{
   const initBtn = document.getElementById("initBtn");
   const styleSelect = document.getElementById("styleSelect");
@@ -364,46 +359,51 @@ document.getElementById("initBtn").addEventListener("click", ()=>{
   const originalText = initBtn.textContent;
   const selectedStyle = styleSelect.value;
   styleSelect.disabled=true; initBtn.disabled=true; initBtn.textContent="初期化中...";
-  const defaults = styleDefaults[selectedStyle] || styleDefaults["style.css"];
-  fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ webappurl, bgimageOtoiawaseDelete:true, form: "sinkitouroku" }) })                                       //変更
-    .then(res=>res.text()).then(()=>{ bgimageCache=""; fetchedColors = {}; applyColorsToFormAndIframe(getColorsForStyle(selectedStyle, true), bgimageCache); })
+  fetch(webhookURL, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ webappurl, bgimageOtoiawaseDelete:true, form: "sinkitouroku" })
+  })
+    .then(res=>res.text())
+    .then(()=>{
+      bgimageCache=""; 
+      fetchedColors = {}; 
+      applyColorsToFormAndIframe(getColorsForStyle(selectedStyle, true), bgimageCache); 
+    })
     .finally(()=>{ styleSelect.disabled=false; initBtn.disabled=false; initBtn.textContent=originalText; });
 });
 
-function collectColors() {
-  const colors={};
-  document.querySelectorAll(".color-list input[type=color]").forEach(input=>colors[input.id]=input.value);
-  return colors;
-}
-
+// フォーム送信
 form.addEventListener("submit", (e)=>{
   e.preventDefault();
   errorMessage.style.display="none";
   const submitBtn = document.getElementById("submitBtn");
   submitBtn.disabled=true; submitBtn.textContent="送信中...";
   const colors = collectColors();
-  const data = { colorApplyForm:true, webappurl, selectedStyle:document.getElementById("styleSelect").value, ...colors, form: "sinkitouroku" };                                              //変更
+  const data = { colorApplyForm:true, webappurl, selectedStyle:document.getElementById("styleSelect").value, ...colors, form: "sinkitouroku" };
   fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(data) })
-    .then(res=>res.text()).then(()=>alert("反映が完了しました"))
+    .then(res=>res.text())
+    .then(()=>alert("反映が完了しました"))
     .catch(()=>{ errorMessage.style.display="block"; })
     .finally(()=>{ submitBtn.disabled=false; submitBtn.textContent="保存"; });
 });
 
+// カラー選択時にプレビュー更新
 document.querySelectorAll(".color-list input[type=color]").forEach(input=>{
   input.addEventListener("input", ()=>{
     updateIframe(collectColors(), bgimageCache);
   });
 });
 
+// 戻るボタン
 document.getElementById("backBtn").addEventListener("click", () => {
-  window.location.href = "https://demover222-1.github.io/settei/settei.html" +
-      "?webappurl=" + webappurl;
+  window.location.href = "https://demover222-1.github.io/settei/settei.html" + "?webappurl=" + webappurl;
 });
-
-
 </script>
+
 </body>
 </html>
+
 
 
 
