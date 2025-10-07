@@ -266,13 +266,17 @@ function applyColorsToFormAndIframe(colors, bgimage="") {
 
 function getColorsForStyle(style) {
   const defaults = styleDefaults[style] || styleDefaults["style.css"];
+  const saved = fetchedColors || {};
   const colors = {};
+
   for (let key in defaults) {
-    const val = fetchedColors[key] || "#fffffe";
+    const val = saved[key] || "#fffffe";
     colors[key] = (val.toLowerCase() === "#fffffe") ? defaults[key] : val;
   }
+
   return colors;
 }
+
 
 window.onload = function() {
   const bgImageLink = document.getElementById("bgImageLink");
@@ -325,7 +329,7 @@ document.getElementById("initBtn").addEventListener("click", ()=>{
   const defaults = styleDefaults[selectedStyle] || styleDefaults["style.css"];
   fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ webappurl, bgimageDelete:true, form: "sinkitouroku" }) })                                       //変更
     .then(res=>res.text()).then(()=>{ bgimageCache="";
-	　fetchedColors = { ...defaults, selectedStyle };								 
+	　fetchedColors = { ...defaults, selectedStyle };                                                                                                                             //変更箇所						 
 	　applyColorsToFormAndIframe(defaults, bgimageCache); })
     .finally(()=>{ styleSelect.disabled=false; initBtn.disabled=false; initBtn.textContent=originalText; });
 });
@@ -364,6 +368,7 @@ document.getElementById("backBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
+
 
 
 
