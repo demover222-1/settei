@@ -317,7 +317,12 @@ document.getElementById("styleSelect").addEventListener("change", ()=>{
   // 現在のフォーム色を取得
   const currentColors = collectColors();
 
+	
+
   // デフォルトとマージ（ユーザーが変更していない場合のみデフォルトを適用）
+	const prevStyle = document.getElementById("styleSelect").dataset.prevStyle || "style.css";
+mergedColors[key] = currentColors[key] === styleDefaults[prevStyle]?.[key] ? defaults[key] : currentColors[key];
+
   const mergedColors = {};
   for(let key in defaults){
     // currentColors[key] が styleDefaults に一致している場合は新しいデフォルトを適用
@@ -399,6 +404,7 @@ document.getElementById("backBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
+
 
 
 
