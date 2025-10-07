@@ -266,7 +266,7 @@ function applyColorsToFormAndIframe(colors, bgimage="") {
 
 function getColorsForStyle(style) {
   const defaults = styleDefaults[style] || styleDefaults["style.css"];
-  const saved = fetchedColors || {};
+  const saved = (fetchedColors && fetchedColors.selectedStyle === style) ? fetchedColors : {};                                                                                      // ★スタイル一致時のみ反映
   const colors = {};
 
   for (let key in defaults) {
@@ -368,6 +368,7 @@ document.getElementById("backBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
+
 
 
 
