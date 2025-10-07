@@ -264,25 +264,20 @@ function applyColorsToFormAndIframe(colors, bgimage="") {
   updateIframe(colors, bgimage);
 }
 
-function getColorsForStyle(newStyle) {
-  const defaults = styleDefaults[newStyle] || styleDefaults["style.css"];
-  const saved = fetchedColors || {};
-  const prevStyle = saved.selectedStyle || newStyle;
-  const prevDefaults = styleDefaults[prevStyle] || {};
-
-  const colors = {};
-
-  for (let key in defaults) {
-    // 前回保存済みで、前回スタイルの初期値と異なる場合はユーザー変更とみなす
-    if (saved[key] && prevDefaults[key] && saved[key].toLowerCase() !== prevDefaults[key].toLowerCase()) {
-      colors[key] = saved[key]; // ユーザーが変更した色を保持
-    } else {
-      colors[key] = defaults[key]; // 新しいスタイルの初期値を適用
-    }
+for (let key in defaults) {
+  // fetchedColors に #fffffe が入っている場合は初期値を使う
+  if (saved[key] && saved[key].toLowerCase() === "#fffffe") {
+    colors[key] = defaults[key];
+  } 
+  // 前回保存済みで、前回スタイルの初期値と異なる場合はユーザー変更とみなす
+  else if (saved[key] && prevDefaults[key] && saved[key].toLowerCase() !== prevDefaults[key].toLowerCase()) {
+    colors[key] = saved[key]; // ユーザーが変更した色を保持
+  } 
+  else {
+    colors[key] = defaults[key]; // 新しいスタイルの初期値を適用
   }
-
-  return colors;
 }
+
 
 
 
@@ -381,6 +376,7 @@ document.getElementById("backBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
+
 
 
 
