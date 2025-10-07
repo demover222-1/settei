@@ -293,7 +293,7 @@ window.onload = function() {
   fetch(webhookURL, {
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({ webappurl, getColorData:true, form:"sinkitouroku" })
+    body:JSON.stringify({ webappurl, getColorData:true, form:"sinkitouroku" })                                                                             //更新
   })
     .then(res => res.text())
     .then(text => {
@@ -321,7 +321,7 @@ document.getElementById("applyBtn").addEventListener("click", () => {
   fetch(webhookURL, {
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({ webappurl, getColorData:true, form:"sinkitouroku" })
+    body:JSON.stringify({ webappurl, getColorData:true, form:"sinkitouroku" })                                                                             //更新
   })
     .then(res => res.text())
     .then(text=>{ 
@@ -362,7 +362,7 @@ document.getElementById("initBtn").addEventListener("click", ()=>{
   fetch(webhookURL, {
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({ webappurl, bgimageOtoiawaseDelete:true, form: "sinkitouroku" })
+    body:JSON.stringify({ webappurl, bgimageDelete:true, form: "sinkitouroku" })                                                                               //更新
   })
     .then(res=>res.text())
     .then(()=>{
@@ -380,7 +380,7 @@ form.addEventListener("submit", (e)=>{
   const submitBtn = document.getElementById("submitBtn");
   submitBtn.disabled=true; submitBtn.textContent="送信中...";
   const colors = collectColors();
-  const data = { colorApplyForm:true, webappurl, selectedStyle:document.getElementById("styleSelect").value, ...colors, form: "sinkitouroku" };
+  const data = { colorApplyForm:true, webappurl, selectedStyle:document.getElementById("styleSelect").value, ...colors, form: "sinkitouroku" };                  //更新
   fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(data) })
     .then(res=>res.text())
     .then(()=>alert("反映が完了しました"))
@@ -403,6 +403,7 @@ document.getElementById("backBtn").addEventListener("click", () => {
 
 </body>
 </html>
+
 
 
 
