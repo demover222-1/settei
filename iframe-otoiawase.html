@@ -164,7 +164,7 @@ select {
 			<div class="color-row"><span>タイトル・完了ページ： </span><input type="color" id="pageTitleColor" value="#3399cc"><br></div>
 			<div class="color-row"><span>お問い合わせ内容： </span><input type="color" id="labelColor" value="#6b5b4d"><br></div>
 			<div class="color-row"><span>入力欄内： </span><input type="color" id="colorInputPlaceholder" value="#a8a8a8"><br></div>
-			<div class="color-row"><span>入力後： </span><input type="color" id="colorInputText" value="#000000"><br></div>  
+			<div class="color-row"><span>入力後： </span><input type="color" id="inputButtonColor" value="#000000"><br></div>  
 			
 			<h4>背景</h4>
 			<div class="color-row"><span>フォーム： </span><input type="color" id="formBg" value="#ffffff"><br></div>
@@ -206,7 +206,7 @@ const styleDefaults = {
 			pageTitleColor: "#3399cc",
 			labelColor: "#6b5b4d",
 			colorInputPlaceholder: "#a8a8a8",
-			colorInputText: "#000000",
+			inputButtonColor: "#000000",
 			formBg: "#ffffff",
 			inputBg: "#f0fbff",
 			buttonTextColor: "#ffffff",
@@ -218,7 +218,7 @@ const styleDefaults = {
 			pageTitleColor: "#ffa1f8",
 			labelColor: "#6b5b4d",
 			colorInputPlaceholder: "#a8a8a8",
-			colorInputText: "#000000",
+			inputButtonColor: "#000000",
 			formBg: "#ffffff",
 			inputBg: "#faf7f3",
 			buttonTextColor: "#ffffff",
@@ -230,7 +230,7 @@ const styleDefaults = {
 			  pageTitleColor:"#d4af37",
 			  labelColor:"#111111",
 			  colorInputPlaceholder:"#a8a8a8",
-			  colorInputText:"#000000",
+			  inputButtonColor:"#000000",
 			  formBg:"#ffffff",
 			  inputBg:"#ffffff",
 			  buttonTextColor:"#111111",
@@ -246,7 +246,7 @@ function updateIframe(colors, bgimage="") {
 			"&pageTitleColor=" + encodeURIComponent(colors.pageTitleColor) +
 			"&labelColor=" + encodeURIComponent(colors.labelColor) +
 			"&colorInputPlaceholder=" + encodeURIComponent(colors.colorInputPlaceholder) +
-			"&colorInputText=" + encodeURIComponent(colors.colorInputText) +
+			"&inputButtonColor=" + encodeURIComponent(colors.inputButtonColor) +
 			"&formBg=" + encodeURIComponent(colors.formBg) + "D9" +
 			"&inputBg=" + encodeURIComponent(colors.inputBg) +
 			"&buttonTextColor=" + encodeURIComponent(colors.buttonTextColor) +
@@ -361,6 +361,7 @@ document.getElementById("backBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
+
 
 
 
