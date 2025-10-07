@@ -264,29 +264,20 @@ function applyColorsToFormAndIframe(colors, bgimage="") {
   updateIframe(colors, bgimage);
 }
 
-for (let key in defaults) {
-  // fetchedColors に #fffffe が入っている場合は初期値を使う
-  if (saved[key] && saved[key].toLowerCase() === "#fffffe") {
-    colors[key] = defaults[key];
-  } 
-  // 前回保存済みで、前回スタイルの初期値と異なる場合はユーザー変更とみなす
-  else if (saved[key] && prevDefaults[key] && saved[key].toLowerCase() !== prevDefaults[key].toLowerCase()) {
-    colors[key] = saved[key]; // ユーザーが変更した色を保持
-  } 
-  else {
-    colors[key] = defaults[key]; // 新しいスタイルの初期値を適用
+function getColorsForStyle(style) {
+  const defaults = styleDefaults[style] || styleDefaults["style.css"];
+  const colors = {};
+  for (let key in defaults) {
+    const val = fetchedColors[key] || "#fffffe";
+    colors[key] = (val.toLowerCase() === "#fffffe") ? defaults[key] : val;
   }
+  return colors;
 }
-
-
-
-
-
 
 window.onload = function() {
   const bgImageLink = document.getElementById("bgImageLink");
   if(webappurl) bgImageLink.href = webappurl;
-  fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ webappurl, getColorData:true, form: "sinkitouroku" }) })                                       //変更
+  fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ webappurl, getColorData:true, form:"sinkitouroku" }) })                                       //変更
     .then(res => res.text())
     .then(text => {
       try { fetchedColors = JSON.parse(text); } catch(e){ fetchedColors = {}; }
@@ -315,11 +306,8 @@ document.getElementById("applyBtn").addEventListener("click", () => {
 });
 
 document.getElementById("styleSelect").addEventListener("change", ()=>{
-  const selectedStyle = document.getElementById("styleSelect").value;
-  const colorsToApply = getColorsForStyle(selectedStyle);
-  applyColorsToFormAndIframe(colorsToApply, bgimageCache);
+  applyColorsToFormAndIframe(getColorsForStyle(document.getElementById("styleSelect").value), bgimageCache);
 });
-
 
 document.getElementById("resetBtn").addEventListener("click", ()=>{
   const selectedStyle = fetchedColors.selectedStyle || "style.css";
@@ -335,10 +323,8 @@ document.getElementById("initBtn").addEventListener("click", ()=>{
   const selectedStyle = styleSelect.value;
   styleSelect.disabled=true; initBtn.disabled=true; initBtn.textContent="初期化中...";
   const defaults = styleDefaults[selectedStyle] || styleDefaults["style.css"];
-  fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ webappurl, bgimageDelete:true, form: "sinkitouroku" }) })                                       //変更
-    .then(res=>res.text()).then(()=>{ bgimageCache="";
-	　fetchedColors = { ...defaults, selectedStyle };                                                                                                                             //変更箇所						 
-	　applyColorsToFormAndIframe(defaults, bgimageCache); })
+  fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ webappurl, bgimageOtoiawaseDelete:true, form: "otoiawase" }) })                                       //変更
+    .then(res=>res.text()).then(()=>{ bgimageCache=""; applyColorsToFormAndIframe(defaults, bgimageCache); })
     .finally(()=>{ styleSelect.disabled=false; initBtn.disabled=false; initBtn.textContent=originalText; });
 });
 
@@ -376,13 +362,4 @@ document.getElementById("backBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
 
