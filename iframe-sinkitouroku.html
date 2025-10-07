@@ -264,26 +264,26 @@ function applyColorsToFormAndIframe(colors, bgimage="") {
   updateIframe(colors, bgimage);
 }
 
-function getColorsForStyle(style) {
-  const defaults = styleDefaults[style] || styleDefaults["style.css"];
+function getColorsForStyle(newStyle) {
+  const defaults = styleDefaults[newStyle] || styleDefaults["style.css"];
   const saved = fetchedColors || {};
+  const prevStyle = saved.selectedStyle || newStyle;
+  const prevDefaults = styleDefaults[prevStyle] || {};
+
   const colors = {};
 
   for (let key in defaults) {
-    const savedVal = saved[key];
-    const prevStyle = saved.selectedStyle || style;  // 前回のスタイル、なければ今の
-    const prevDefaults = styleDefaults[prevStyle] || {};
-
-    // savedVal が存在 AND 前回の初期値と違う場合のみ保持
-    if (savedVal && prevDefaults[key] && savedVal.toLowerCase() !== prevDefaults[key].toLowerCase()) {
-      colors[key] = savedVal;  // ユーザーが変えた色
+    // 前回保存済みで、前回スタイルの初期値と異なる場合はユーザー変更とみなす
+    if (saved[key] && prevDefaults[key] && saved[key].toLowerCase() !== prevDefaults[key].toLowerCase()) {
+      colors[key] = saved[key]; // ユーザーが変更した色を保持
     } else {
-      colors[key] = defaults[key]; // 新しいスタイルの初期値
+      colors[key] = defaults[key]; // 新しいスタイルの初期値を適用
     }
   }
 
   return colors;
 }
+
 
 
 
@@ -320,8 +320,11 @@ document.getElementById("applyBtn").addEventListener("click", () => {
 });
 
 document.getElementById("styleSelect").addEventListener("change", ()=>{
-  applyColorsToFormAndIframe(getColorsForStyle(document.getElementById("styleSelect").value), bgimageCache);
+  const selectedStyle = document.getElementById("styleSelect").value;
+  const colorsToApply = getColorsForStyle(selectedStyle);
+  applyColorsToFormAndIframe(colorsToApply, bgimageCache);
 });
+
 
 document.getElementById("resetBtn").addEventListener("click", ()=>{
   const selectedStyle = fetchedColors.selectedStyle || "style.css";
@@ -378,6 +381,7 @@ document.getElementById("backBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
+
 
 
 
