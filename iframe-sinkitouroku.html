@@ -324,7 +324,9 @@ document.getElementById("initBtn").addEventListener("click", ()=>{
   styleSelect.disabled=true; initBtn.disabled=true; initBtn.textContent="初期化中...";
   const defaults = styleDefaults[selectedStyle] || styleDefaults["style.css"];
   fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ webappurl, bgimageDelete:true, form: "sinkitouroku" }) })                                       //変更
-    .then(res=>res.text()).then(()=>{ bgimageCache=""; applyColorsToFormAndIframe(defaults, bgimageCache); })
+    .then(res=>res.text()).then(()=>{ bgimageCache="";
+	　fetchedColors = { ...defaults, selectedStyle };								 
+	　applyColorsToFormAndIframe(defaults, bgimageCache); })
     .finally(()=>{ styleSelect.disabled=false; initBtn.disabled=false; initBtn.textContent=originalText; });
 });
 
@@ -362,6 +364,7 @@ document.getElementById("backBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
+
 
 
 
