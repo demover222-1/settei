@@ -292,24 +292,41 @@ function updateIframe(colors, bgimage="") {
 }
 
 function applyColorsToFormAndIframe(colors, bgimage="") {
-  Object.keys(colors).forEach(k => { if(document.getElementById(k)) document.getElementById(k).value = colors[k]; });
+  Object.keys(colors).forEach(k => {
+    if(document.getElementById(k)) document.getElementById(k).value = colors[k];
+  });
   updateIframe(colors, bgimage);
 }
 
-function getColorsForStyle(style) {
+function getColorsForStyle(style, forceDefaults=false) {
   const defaults = styleDefaults[style] || styleDefaults["style.css"];
   const colors = {};
   for (let key in defaults) {
-    const val = fetchedColors[key] || "#fffffe";
-    colors[key] = (val.toLowerCase() === "#fffffe") ? defaults[key] : val;
+    if(forceDefaults) {
+      colors[key] = defaults[key];
+    } else {
+      const val = fetchedColors[key] || "#fffffe";
+      colors[key] = (val.toLowerCase() === "#fffffe") ? defaults[key] : val;
+    }
   }
+  return colors;
+}
+
+function collectColors() {
+  const colors={};
+  document.querySelectorAll(".color-list input[type=color]").forEach(input => colors[input.id]=input.value);
   return colors;
 }
 
 window.onload = function() {
   const bgImageLink = document.getElementById("bgImageLink");
   if(webappurl) bgImageLink.href = webappurl;
-  fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ webappurl, getColorData:true, form:"tougou" }) })                                       //変更
+
+  fetch(webhookURL, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ webappurl, getColorData:true, form:"tougou" })                                                                             //更新
+  })
     .then(res => res.text())
     .then(text => {
       try { fetchedColors = JSON.parse(text); } catch(e){ fetchedColors = {}; }
@@ -317,9 +334,11 @@ window.onload = function() {
       document.getElementById("styleSelect").value = selectedStyle;
       bgimageCache = fetchedColors.bgimage || "";
       applyColorsToFormAndIframe(getColorsForStyle(selectedStyle), bgimageCache);
-    }).catch(err=>console.error(err));
+    })
+    .catch(err => console.error(err));
 };
 
+// 背景画像適用ボタン
 document.getElementById("applyBtn").addEventListener("click", () => {
   const btn = document.getElementById("applyBtn");
   const originalText = btn.textContent;
@@ -331,22 +350,40 @@ document.getElementById("applyBtn").addEventListener("click", () => {
     const val = input.value.toLowerCase();
     colors[input.id] = (val === "#fffffe") ? defaults[input.id] : val;
   });
-  fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ webappurl, getColorData:true, form:"tougou" }) })                                       //変更
-    .then(res=>res.text())
-    .then(text=>{ try { const data = JSON.parse(text); bgimageCache=data.bgimage||""; } catch(e){ console.error(e); } })
+  fetch(webhookURL, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ webappurl, getColorData:true, form:"tougou" })                                                                             //更新
+  })
+    .then(res => res.text())
+    .then(text=>{ 
+      try { const data = JSON.parse(text); bgimageCache=data.bgimage||""; } catch(e){ console.error(e); }
+    })
     .finally(()=>{ updateIframe(colors, bgimageCache); btn.disabled=false; btn.textContent=originalText; });
 });
 
+// スタイル変更時
 document.getElementById("styleSelect").addEventListener("change", ()=>{
-  applyColorsToFormAndIframe(getColorsForStyle(document.getElementById("styleSelect").value), bgimageCache);
+  const selectedStyle = document.getElementById("styleSelect").value;
+  const defaults = styleDefaults[selectedStyle];
+  const currentColors = collectColors();
+  const prevStyle = document.getElementById("styleSelect").dataset.prevStyle || "style.css";
+  const mergedColors = {};
+  for(let key in defaults){
+    mergedColors[key] = currentColors[key] === styleDefaults[prevStyle]?.[key] ? defaults[key] : currentColors[key];
+  }
+  applyColorsToFormAndIframe(mergedColors, bgimageCache);
+  document.getElementById("styleSelect").dataset.prevStyle = selectedStyle;
 });
 
+// リセット
 document.getElementById("resetBtn").addEventListener("click", ()=>{
   const selectedStyle = fetchedColors.selectedStyle || "style.css";
   document.getElementById("styleSelect").value = selectedStyle;
   applyColorsToFormAndIframe(getColorsForStyle(selectedStyle), bgimageCache);
 });
 
+// 初期化
 document.getElementById("initBtn").addEventListener("click", ()=>{
   const initBtn = document.getElementById("initBtn");
   const styleSelect = document.getElementById("styleSelect");
@@ -354,44 +391,48 @@ document.getElementById("initBtn").addEventListener("click", ()=>{
   const originalText = initBtn.textContent;
   const selectedStyle = styleSelect.value;
   styleSelect.disabled=true; initBtn.disabled=true; initBtn.textContent="初期化中...";
-  const defaults = styleDefaults[selectedStyle] || styleDefaults["style.css"];
-  fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ webappurl, bgimageTougouDelete:true, form: "tougou" }) })                                       //変更
-    .then(res=>res.text()).then(()=>{ bgimageCache=""; applyColorsToFormAndIframe(defaults, bgimageCache); })
+  fetch(webhookURL, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ webappurl, bgimageDelete:true, form: "tougou" })                                                                               //更新
+  })
+    .then(res=>res.text())
+    .then(()=>{
+      bgimageCache=""; 
+      fetchedColors = {}; 
+      applyColorsToFormAndIframe(getColorsForStyle(selectedStyle, true), bgimageCache); 
+    })
     .finally(()=>{ styleSelect.disabled=false; initBtn.disabled=false; initBtn.textContent=originalText; });
 });
 
-function collectColors() {
-  const colors={};
-  document.querySelectorAll(".color-list input[type=color]").forEach(input=>colors[input.id]=input.value);
-  return colors;
-}
-
+// フォーム送信
 form.addEventListener("submit", (e)=>{
   e.preventDefault();
   errorMessage.style.display="none";
   const submitBtn = document.getElementById("submitBtn");
   submitBtn.disabled=true; submitBtn.textContent="送信中...";
   const colors = collectColors();
-  const data = { colorApplyForm:true, webappurl, selectedStyle:document.getElementById("styleSelect").value, ...colors, form: "tougou" };                        　　　　　　　               //変更
+  const data = { colorApplyForm:true, webappurl, selectedStyle:document.getElementById("styleSelect").value, ...colors, form: "tougou" };                  //更新
   fetch(webhookURL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(data) })
-    .then(res=>res.text()).then(()=>alert("反映が完了しました"))
+    .then(res=>res.text())
+    .then(()=>alert("反映が完了しました"))
     .catch(()=>{ errorMessage.style.display="block"; })
     .finally(()=>{ submitBtn.disabled=false; submitBtn.textContent="保存"; });
 });
 
+// カラー選択時にプレビュー更新
 document.querySelectorAll(".color-list input[type=color]").forEach(input=>{
   input.addEventListener("input", ()=>{
     updateIframe(collectColors(), bgimageCache);
   });
 });
 
+// 戻るボタン
 document.getElementById("backBtn").addEventListener("click", () => {
-  window.location.href = "https://demover222-1.github.io/settei/settei.html" +
-      "?webappurl=" + webappurl;
+  window.location.href = "https://demover222-1.github.io/settei/settei.html" + "?webappurl=" + webappurl;
 });
-
-
 </script>
+
 </body>
 </html>
 
