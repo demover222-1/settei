@@ -311,8 +311,21 @@ document.getElementById("applyBtn").addEventListener("click", () => {
 });
 
 document.getElementById("styleSelect").addEventListener("change", ()=>{
-  applyColorsToFormAndIframe(getColorsForStyle(document.getElementById("styleSelect").value), bgimageCache);
+  const selectedStyle = document.getElementById("styleSelect").value;
+  const defaults = styleDefaults[selectedStyle];
+
+  // 現在のフォーム色を取得
+  const currentColors = collectColors();
+
+  // デフォルトとマージ（未設定は defaults）
+  const mergedColors = {};
+  for(let key in defaults){
+    mergedColors[key] = currentColors[key] || defaults[key];
+  }
+
+  applyColorsToFormAndIframe(mergedColors, bgimageCache);
 });
+
 
 document.getElementById("resetBtn").addEventListener("click", ()=>{
   const selectedStyle = fetchedColors.selectedStyle || "style.css";
@@ -367,6 +380,7 @@ document.getElementById("backBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
+
 
 
 
