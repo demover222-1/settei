@@ -162,7 +162,7 @@ select {
         </div>
 			<h4>文字色</h4>
 			<div class="color-row"><span>タイトル・完了ページ： </span><input type="color" id="pageTitleColor" value="#3399cc"><br></div>
-			<div class="color-row"><span>フォーム内： </span><input type="color" id="bodyCcolor" value="#4a4a4a"><br></div>		
+			<div class="color-row"><span>フォーム内： </span><input type="color" id="bodyColor" value="#4a4a4a"><br></div>		
 			
 			<h4>背景</h4>
 			<div class="color-row"><span>フォーム内： </span><input type="color" id="bgForm" value="#ffffff"><br></div>
@@ -222,7 +222,7 @@ function updateIframe(colors, bgimage="") {
   let url = "https://demover222-1.github.io/cancel/?" +                                                                                                  //変更
 			"webappurl=" + webappurl +
 			"&pageTitleColor=" + encodeURIComponent(colors.pageTitleColor) +
-			"&bodyColor=" + encodeURIComponent(colors.labelColor) +
+			"&bodyColor=" + encodeURIComponent(colors.bodyColor) +
 			"&bgForm=" + encodeURIComponent(colors.bgForm) + "D9" +
 			"&buttonTextColor=" + encodeURIComponent(colors.buttonTextColor) +
 			"&bgButton=" + encodeURIComponent(colors.bgButton) +
@@ -334,5 +334,6 @@ document.getElementById("backBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
+
 
 
