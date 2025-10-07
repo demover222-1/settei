@@ -264,15 +264,20 @@ function applyColorsToFormAndIframe(colors, bgimage="") {
   updateIframe(colors, bgimage);
 }
 
-function getColorsForStyle(style) {
+function getColorsForStyle(style, forceDefaults=false) {
   const defaults = styleDefaults[style] || styleDefaults["style.css"];
   const colors = {};
   for (let key in defaults) {
-    const val = fetchedColors[key] || "#fffffe";
-    colors[key] = (val.toLowerCase() === "#fffffe") ? defaults[key] : val;
+    if(forceDefaults) {
+      colors[key] = defaults[key];
+    } else {
+      const val = fetchedColors[key] || "#fffffe";
+      colors[key] = (val.toLowerCase() === "#fffffe") ? defaults[key] : val;
+    }
   }
   return colors;
 }
+
 
 window.onload = function() {
   const bgImageLink = document.getElementById("bgImageLink");
@@ -362,5 +367,6 @@ document.getElementById("backBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
+
 
 
