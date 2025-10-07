@@ -92,7 +92,7 @@
     };
 
       // 同じタブで遷移
-	  document.getElementById("btn-staffimage").onclick = () => window.open(links.staffimage, "_blank");
+	  document.getElementById("btn-staffimage").onclick = () => location.href = links.staffimage;
       document.getElementById("btn-sinki").onclick = () => location.href = links.sinki;
       document.getElementById("btn-otoiawase").onclick = () => location.href = links.otoiawase;
       document.getElementById("btn-cancel").onclick = () => location.href = links.cancel;
@@ -101,3 +101,4 @@
   </script>
 </body>
 </html>
+
