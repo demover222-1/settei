@@ -63,6 +63,7 @@
 <body>
   <div class="controls">
     <h3>フォーム設定</h3>
+	<button id="btn-staffimage">スタッフ写真登録</button>
     <button id="btn-sinki">新規登録</button>
     <button id="btn-otoiawase">お問い合わせ</button>
     <button id="btn-cancel">キャンセル</button>
@@ -83,6 +84,7 @@
     } else {
       // 仮のリンクURLを設定（必要に応じて後で差し替え可能）
     const links = {
+	  staffimage: webappurl,
       sinki: 	 `https://demover222-1.github.io/settei/iframe-sinkitouroku.html?webappurl=${encodeURIComponent(webappurl)}`,
       otoiawase: `https://demover222-1.github.io/settei/iframe-otoiawase.html?webappurl=${encodeURIComponent(webappurl)}`,
       cancel: 	 `https://demover222-1.github.io/settei/iframe-cancel.html?webappurl=${encodeURIComponent(webappurl)}`,
@@ -90,6 +92,7 @@
     };
 
       // 同じタブで遷移
+	  document.getElementById("btn-staffimage").onclick = () => window.open(links.staffimage, "_blank");
       document.getElementById("btn-sinki").onclick = () => location.href = links.sinki;
       document.getElementById("btn-otoiawase").onclick = () => location.href = links.otoiawase;
       document.getElementById("btn-cancel").onclick = () => location.href = links.cancel;
