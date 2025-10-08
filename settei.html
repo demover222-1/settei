@@ -75,6 +75,7 @@
     // URLパラメータから webappurl を取得
     const params = new URLSearchParams(window.location.search);
     const webappurl = params.get("webappurl");
+	const userId = params.get("userId");
 
     const errorMsg = document.getElementById("error-message");
 
@@ -87,7 +88,7 @@
 	  staffimage: webappurl,
       sinki: 	 `https://demover222-1.github.io/settei/iframe-sinkitouroku.html?webappurl=${encodeURIComponent(webappurl)}`,
       otoiawase: `https://demover222-1.github.io/settei/iframe-otoiawase.html?webappurl=${encodeURIComponent(webappurl)}`,
-      cancel: 	 `https://demover222-1.github.io/settei/iframe-cancel.html?webappurl=${encodeURIComponent(webappurl)}`,
+      cancel: 	 `https://demover222-1.github.io/settei/iframe-cancel.html?webappurl=${encodeURIComponent(webappurl)}`&userId=${encodeURIComponent(userId)}`,
       yoyaku:    `https://demover222-1.github.io/settei/iframe-tougou.html?webappurl=${encodeURIComponent(webappurl)}`
     };
 
@@ -101,4 +102,5 @@
   </script>
 </body>
 </html>
+
 
