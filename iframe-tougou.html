@@ -206,7 +206,7 @@ const errorMessage = document.getElementById("error-message");
 const webhookURL = "https://reservations.thinklayer.jp/";
 const params = new URLSearchParams(window.location.search);
 const webappurl = params.get("webappurl");
-const webappurl = params.get("webappurl");
+const userId = params.get("userId");
 
 let fetchedColors = {};
 let bgimageCache = "";
@@ -437,6 +437,7 @@ document.getElementById("backBtn").addEventListener("click", () => {
 
 </body>
 </html>
+
 
 
 
