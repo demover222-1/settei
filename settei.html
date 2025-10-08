@@ -86,10 +86,10 @@
       // 仮のリンクURLを設定（必要に応じて後で差し替え可能）
     const links = {
 	  staffimage: webappurl,
-      sinki: 	 `https://demover222-1.github.io/settei/iframe-sinkitouroku.html?webappurl=${encodeURIComponent(webappurl)}`,
-      otoiawase: `https://demover222-1.github.io/settei/iframe-otoiawase.html?webappurl=${encodeURIComponent(webappurl)}`,
+      sinki: 	 `https://demover222-1.github.io/settei/iframe-sinkitouroku.html?webappurl=${encodeURIComponent(webappurl)}&userId=${encodeURIComponent(userId)}`,
+      otoiawase: `https://demover222-1.github.io/settei/iframe-otoiawase.html?webappurl=${encodeURIComponent(webappurl)}&userId=${encodeURIComponent(userId)}`,
       cancel: 	 `https://demover222-1.github.io/settei/iframe-cancel.html?webappurl=${encodeURIComponent(webappurl)}&userId=${encodeURIComponent(userId)}`,
-      yoyaku:    `https://demover222-1.github.io/settei/iframe-tougou.html?webappurl=${encodeURIComponent(webappurl)}`
+      yoyaku:    `https://demover222-1.github.io/settei/iframe-tougou.html?webappurl=${encodeURIComponent(webappurl)}&userId=${encodeURIComponent(userId)}`
     };
 
       // 同じタブで遷移
@@ -102,6 +102,7 @@
   </script>
 </body>
 </html>
+
 
 
 
