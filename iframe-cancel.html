@@ -190,6 +190,7 @@ const errorMessage = document.getElementById("error-message");
 const webhookURL = "https://reservations.thinklayer.jp/";
 const params = new URLSearchParams(window.location.search);
 const webappurl = params.get("webappurl");
+const userId = params.get("userId");
 
 let fetchedColors = {};
 let bgimageCache = "";
@@ -226,7 +227,8 @@ function updateIframe(colors, bgimage="") {
 			"&bgForm=" + encodeURIComponent(colors.bgForm) + "D9" +
 			"&buttonTextColor=" + encodeURIComponent(colors.buttonTextColor) +
 			"&bgButton=" + encodeURIComponent(colors.bgButton) +
-			"&css=" + encodeURIComponent(document.getElementById("styleSelect").value);
+			"&css=" + encodeURIComponent(document.getElementById("styleSelect").value) +
+	  		"&userId=" + userId;
   if(bgimage.trim() !== "") url += "&bgimage=https://lh3.googleusercontent.com/d/" + encodeURIComponent(bgimage);
   document.getElementById("previewFrame").src = url;
 }
@@ -375,5 +377,6 @@ document.getElementById("backBtn").addEventListener("click", () => {
 
 </body>
 </html>
+
 
 
