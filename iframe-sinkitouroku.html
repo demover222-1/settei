@@ -198,6 +198,7 @@ const errorMessage = document.getElementById("error-message");
 const webhookURL = "https://reservations.thinklayer.jp/";
 const params = new URLSearchParams(window.location.search);
 const webappurl = params.get("webappurl");
+const userId = params.get("userId");
 
 let fetchedColors = {};
 let bgimageCache = "";
@@ -254,7 +255,8 @@ function updateIframe(colors, bgimage="") {
     "&buttonBg=" + encodeURIComponent(colors.buttonBg) +
     "&borderInput=" + encodeURIComponent(colors.borderInput) +
     "&inputFocusBorder=" + encodeURIComponent(colors.inputFocusBorder) +
-    "&css=" + encodeURIComponent(document.getElementById("styleSelect").value);
+    "&css=" + encodeURIComponent(document.getElementById("styleSelect").value)
+    "&userId=" + userId;
   if(bgimage.trim() !== "") url += "&bgimage=https://lh3.googleusercontent.com/d/" + encodeURIComponent(bgimage);
   document.getElementById("previewFrame").src = url;
 }
@@ -397,12 +399,13 @@ document.querySelectorAll(".color-list input[type=color]").forEach(input=>{
 
 // 戻るボタン
 document.getElementById("backBtn").addEventListener("click", () => {
-  window.location.href = "https://demover222-1.github.io/settei/settei.html" + "?webappurl=" + webappurl;
+  window.location.href = "https://demover222-1.github.io/settei/settei.html" + "?webappurl=" + webappurl + "&userId=" + userId;
 });
 </script>
 
 </body>
 </html>
+
 
 
 
