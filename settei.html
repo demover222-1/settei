@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ← これがあるとスマホでも綺麗に見える！ -->
+  <title>フォーム選択</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      margin: 20px;
+      background-color: #f0f2f5;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      width: 300px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background-color: #fff;
+      box-sizing: border-box;
+    }
+
+    h3 {
+      margin-bottom: 20px;
+      color: #333;
+      text-align: center;
+    }
+
+    button {
+      padding: 12px 15px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background-color: #3399cc;
+      color: #fff;
+      font-weight: bold;
+      transition: background-color 0.2s;
+      margin-bottom: 15px;
+    }
+
+    button:hover {
+      background-color: #287bb5;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+					#btn-menu-edit,
+					#btn-staff-edit {
+					  padding: 12px 15px;
+					  border-radius: 6px;
+					  border: none;
+					  cursor: pointer;
+					  background-color: #ed5a5a;
+					  color: #fff;
+					  font-weight: bold;
+					  transition: background-color 0.2s;
+					  margin-bottom: 15px;
+					}
+
+					#btn-menu-edit:hover,
+					#btn-staff-edit:hover {
+					  background-color: #d14f4f;
+					}
+
+
+		#btn-staffimage {
+		  padding: 12px 15px;
+		  border-radius: 6px;
+		  border: none;
+		  cursor: pointer;
+		  background-color: #67c949;
+		  color: #fff;
+		  font-weight: bold;
+		  transition: background-color 0.2s;
+		  margin-bottom: 15px;
+		}
+
+		#btn-staffimage:hover {
+		  background-color: #38b528;
+		}
+
+					#btn-sonota {
+					  padding: 12px 15px;
+					  border-radius: 6px;
+					  border: none;
+					  cursor: pointer;
+					  background-color: #bc6fe3;
+					  color: #fff;
+					  font-weight: bold;
+					  transition: background-color 0.2s;
+					  margin-bottom: 15px;
+					}
+
+					#btn-sonota:hover {
+					  background-color: #9e49c9;
+					}
+
+    #error-message {
+      display: none;
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <h3>設定</h3>
+	<button id="btn-menu-edit">メニュー編集</button>
+	<button id="btn-staff-edit">スタッフ編集</button>
+	<button id="btn-staffimage">スタッフ写真登録</button>
+    <button id="btn-sinki">新規登録</button>
+    <button id="btn-otoiawase">お問い合わせ</button>
+    <button id="btn-cancel">キャンセル</button>
+    <button id="btn-yoyaku">予約画面</button>
+	<button id="btn-sonota">その他</button>
+    <div id="error-message">webappurl パラメータが見つかりません。</div>
+  </div>
+
+  <script>
+    // URLパラメータから webappurl を取得
+    const params = new URLSearchParams(window.location.search);
+    const webappurl = params.get("webappurl");
+    const userId = params.get("userId");
+    const sheetId = params.get("sheetId");
+    const errorMsg = document.getElementById("error-message");
+
+    if (!webappurl) {
+      errorMsg.style.display = "block";
+      document.querySelectorAll("button").forEach(btn => btn.disabled = true);
+    } else {
+      // 仮のリンクURLを設定（必要に応じて後で差し替え可能）
+    const links = {
+	  sonota:    `https://demover222-1.github.io/settei/sonota.html?userId=${encodeURIComponent(userId)}&sheetId=${encodeURIComponent(sheetId)}&webappurl=${encodeURIComponent(webappurl)}`,
+	  menuedit:  `https://demover222-1.github.io/settei/menuedit.html?userId=${encodeURIComponent(userId)}&sheetId=${encodeURIComponent(sheetId)}&webappurl=${encodeURIComponent(webappurl)}`,
+	  staffedit: `https://demover222-1.github.io/settei/staffedit.html?userId=${encodeURIComponent(userId)}&sheetId=${encodeURIComponent(sheetId)}&webappurl=${encodeURIComponent(webappurl)}`,	  
+	  staffimage: webappurl,
+      sinki: 	 `https://demover222-1.github.io/settei/iframe-sinkitouroku.html?userId=${encodeURIComponent(userId)}&sheetId=${encodeURIComponent(sheetId)}&webappurl=${encodeURIComponent(webappurl)}`,
+      otoiawase: `https://demover222-1.github.io/settei/iframe-otoiawase.html?userId=${encodeURIComponent(userId)}&sheetId=${encodeURIComponent(sheetId)}&webappurl=${encodeURIComponent(webappurl)}`,
+      cancel: 	 `https://demover222-1.github.io/settei/iframe-cancel.html?userId=${encodeURIComponent(userId)}&sheetId=${encodeURIComponent(sheetId)}&webappurl=${encodeURIComponent(webappurl)}`,
+      yoyaku:    `https://demover222-1.github.io/settei/iframe-tougou.html?userId=${encodeURIComponent(userId)}&sheetId=${encodeURIComponent(sheetId)}&webappurl=${encodeURIComponent(webappurl)}`
+    };
+
+      // 同じタブで遷移
+	  document.getElementById("btn-sonota").onclick = () => location.href = links.sonota;
+	  document.getElementById("btn-menu-edit").onclick = () => location.href = links.menuedit;
+	  document.getElementById("btn-staff-edit").onclick = () => location.href = links.staffedit;
+	  document.getElementById("btn-staffimage").onclick = () => location.href = links.staffimage;
+      document.getElementById("btn-sinki").onclick = () => location.href = links.sinki;
+      document.getElementById("btn-otoiawase").onclick = () => location.href = links.otoiawase;
+      document.getElementById("btn-cancel").onclick = () => location.href = links.cancel;
+      document.getElementById("btn-yoyaku").onclick = () => location.href = links.yoyaku;
+    }
+  </script>
+</body>
+</html>
+

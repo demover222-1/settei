@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>メニュー編集</title>
+<style>
+/* ================== ルート変数 ================== */
+:root {
+  --bg-selected: #7fcfff;   /* 選択後の背景色 */
+  --bg-card-common: #f0f0f0d9; /* 共通カード背景 */
+  --color-heading: #4a4a4a;
+  --color-block-title: #000000;
+  --color-menu-item-string: #000000;
+  --color-menu-desc-string: #424242;
+}
+
+/* ================== 全体リセット ================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  font-family: Arial, sans-serif;
+  gap: 20px;
+  background-color: #f0f2f5;
+  min-height: 100vh;
+  	padding: 20px;
+}
+
+/* ================== 編集パネル ================== */
+#editor-panel {
+  width: 500px;
+  max-width: 100%;
+  flex-shrink: 0;
+  background: #f7f7f7cc;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 0 10px #00000022;
+  height: 95vh;
+  overflow-y: auto;
+  position: sticky;
+  top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#editor-title {
+   text-align: center;
+ }
+ 
+ #backBtn {
+  padding: 6px 10px;
+  font-size: 13px;
+  background-color: #cccccc;
+  color: #333;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  align-self: flex-start; /* 左上に配置 */
+}
+#backBtn:hover {
+  background-color: #aaaaaa;
+}
+ 
+
+/* ================== メニュー表示エリア ================== */
+#menu-page {
+  flex: 1;
+  min-width: 0;
+  background: #fff9;
+  border-radius: 10px;
+  padding: 10px;
+  overflow-y: auto;
+  max-height: 95vh;
+}
+
+/* 操作パネルの説明欄 */
+#new-menu-desc,
+.edit-desc {
+  height: 60px;
+  padding: 6px 8px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+#new-menu-desc {
+  width: 100%;
+  resize: vertical;         /* ユーザーが縦方向にリサイズ可能 */
+  white-space: pre-wrap;    /* 改行を保持しつつ折り返し */
+}
+
+
+#toggle-new-menu {
+  display: inline-flex;      /* 横並び */
+  align-items: center;       /* 縦中央 */
+  justify-content: center;   /* 横中央 */
+  width: auto;               /* 幅を文字に合わせる */
+  flex: 0 0 auto;            /* flexで伸びないようにする */
+  padding: 4px 12px;         /* 文字周りの余白 */
+  white-space: nowrap;       /* 改行させない */
+  margin-bottom: 6px;
+}
+
+#toggle-new-block {
+  display: inline-flex;      /* 横並び */
+  align-items: center;       /* 縦中央 */
+  justify-content: center;   /* 横中央 */
+  width: auto;               /* 幅を文字に合わせる */
+  flex: 0 0 auto;            /* flexで伸びないようにする */
+  padding: 4px 12px;         /* 文字周りの余白 */
+  white-space: nowrap;       /* 改行させない */
+  margin-bottom: 6px;
+}
+
+/* ================== リスト項目 ================== */
+#block-list li,
+#menu-list li {
+  display: flex;
+  flex-direction: column;
+  margin: 4px 0;
+  padding: 4px 6px;
+  background: #ffffffD9;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.12); /* 柔らかい枠線 */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  transition: all 0.15s ease;
+}
+
+#block-list li > div,
+#menu-list li > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+#block-list li > div.details {
+  background-color: #f9f9f9cc;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 6px;
+  gap: 6px;
+  display: none;
+  flex-direction: column;
+}
+
+#block-list li.expanded {
+  border-color: var(--bg-selected);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+}
+
+#block-list li {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#block-list li:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  border-color: var(--bg-selected);
+}
+
+
+/* ================== ボタン ================== */
+button {
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: red;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+#add-block-btn {
+  height: 36px;
+  min-width: 100px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid #99ddff;
+  background: #ccefff;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#add-menu-btn {
+  height: 36px;
+  min-width: 100%;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid #99ddff;
+  background: #ccefff;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#add-block-btn:hover,
+#add-menu-btn:hover {
+  background: #b3e0ff;
+}
+
+#save-btn {
+  height: 40px;
+  line-height: 40px;
+  border-radius: 6px;
+  border: 1px solid #99ddff;
+  background: #b3e0ff;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 12px;
+  display: inline-block;
+}
+
+#save-btn:hover {
+  background: #80ccff;
+}
+
+#save-btn:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+  color: #666;
+}
+
+#save-status {
+  margin-top: 5px;
+  color: green;
+  font-size: 14px;
+}
+
+/* ================== 入力欄 ================== */
+.input-row,
+#new-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  padding: 6px 0;
+}
+
+.input-row input,
+.input-row select,
+.input-row button,
+#new-menu-row input,
+#new-menu-row select {
+  flex: 1 1 auto;
+  min-width: 50px;
+  height: 36px;
+  padding: 6px 8px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+#new-menu-name { flex: 2 1 0; min-width: 80px; }
+#new-menu-price-number,
+#new-menu-price-text,
+#new-menu-duration { flex: 1 1 0; min-width: 60px; }
+
+/* ================== ブロック内メニュー ================== */
+.menu-item {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin: 5px 0;
+  padding: 6px;
+  cursor: pointer;
+  background-color: var(--bg-card-common);
+  color: var(--color-menu-item-string);
+}
+
+.menu-item.selected {
+  border-color: #0078ff;
+  background: #e9f3ff;
+}
+
+.block-title {
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.edit-title,
+.edit-desc,
+.edit-price-number,
+.edit-price-text,
+.edit-duration {
+  flex: 1 1 auto;
+  min-width: 40px;
+  font-size: 14px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-bottom: 4px;
+}
+
+.edit-desc {
+  height: 60px;
+}
+
+.edit-duration {
+  height: 28px;
+  padding: 0 8px;
+  vertical-align: middle;
+}
+
+#new-block-form {
+  background-color: #ffffffD9;         /* 背景色統一 */
+  border: 1px solid rgba(0,0,0,0.12); /* 柔らかい枠線 */
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  padding: 10px;
+  margin-bottom: 12px;
+  transition: all 0.15s ease;
+  display: flex;
+  gap: 4px;
+ }
+
+#new-menu-form {
+  background-color: #ffffffD9;         /* 背景色統一 */
+  border: 1px solid rgba(0,0,0,0.12); /* 柔らかい枠線 */
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  padding: 10px;
+  margin-bottom: 12px;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+ }
+
+
+/* ================== トグルボタン ================== */
+.toggle-handle {
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid #7fcfff;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.toggle-handle:hover {
+  background-color: #f0f8ff;    /* ホバー時に少し色変化させる */
+}
+
+.menu-drag-handle {
+  margin-right: 6px;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #7fcfff;
+  border-radius: 50%;   
+  border: 1px solid #7fcfff;
+}
+
+/* ================== 右画面 ================== */  
+h2, h1 { 
+	text-align: center; 
+	color: var(--color-heading);
+
+  text-shadow:
+    -1px -1px 3px #ffffffd9,
+     1px -1px 3px #ffffffd9,
+    -1px  1px 3px #ffffffd9,
+     1px  1px 3px #ffffffd9;
+}
+
+
+.block-title { 
+	margin-top: 24px;
+	font-size: 18px; 
+	font-weight: bold; 
+	color: var(--color-block-title); 
+	border-left: 4px solid var(--bg-selected); 
+	padding-left: 10px; 
+	margin-bottom: 10px;
+
+  text-shadow:
+    -1px -1px 3px #ffffffd9,
+     1px -1px 3px #ffffffd9,
+    -1px  1px 3px #ffffffd9,
+     1px  1px 3px #ffffffd9;
+ }
+
+.menu-item { 
+	border-radius: 8px; 
+	background-color: var(--bg-card-common); 
+	padding: 12px 16px; 
+	margin-bottom: 12px; 
+	cursor: pointer; 
+	user-select: none; 
+	transition: background-color 0.3s ease;
+	color: var(--color-menu-item-string);
+ }
+
+.menu-item:hover { 
+	background-color: var(--bg-selected);
+ }
+.menu-item.selected { 
+	background-color: var(--bg-selected); 
+	color: var(--color-menu-item-string);
+ }
+
+.menu-title { 
+	font-size: 16px; 
+	font-weight: bold;
+ }
+
+.menu-desc { 
+	font-size: 13px; 
+	margin-top: 4px; 
+	color: var(--color-menu-desc-string); 
+	padding-left: 8px;
+ }
+
+/* 読み込み中 */
+#menu-container {
+  color: var(--color-heading);
+  font-style: italic;
+
+  text-shadow:
+    -1px -1px 3px #ffffffd9,
+     1px -1px 3px #ffffffd9,
+    -1px  1px 3px #ffffffd9,
+     1px  1px 3px #ffffffd9;
+}
+
+/* ================== レスポンシブ ================== */
+@media screen and (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+
+  #editor-panel {
+    width: 100%;
+    height: auto;
+    position: relative;
+    top: 0;
+    margin-bottom: 10px;
+  }
+
+  #menu-page {
+    width: 100%;
+    height: auto;
+    max-height: none;
+    padding: 10px;
+  }
+
+  .input-row,
+  #new-menu-row {
+    flex-wrap: nowrap;
+  }
+}
+
+/* ================== 読み込み中 ================== */
+#menu-container {
+  color: var(--color-heading);
+  font-style: italic;
+}
+
+
+/* ＋新規メニュー追加 */
+.menu-btn {
+  border-radius: 6px;
+  background-color: #ccefff;
+  border: 1px solid #e0e0e0;
+  padding: 4px 12px;              /* 文字に合わせた余白 */
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+  white-space: nowrap;            /* 改行させない */
+}
+
+.menu-btn:hover {
+  background-color: #99ddff;      /* ホバー時の色変化 */
+}
+
+/* ＋新規ブロック追加 */
+.block-btn {
+  border-radius: 6px;
+  background-color: #ccefff;
+  border: 1px solid #e0e0e0;
+  padding: 4px 12px;              /* 文字に合わせた余白 */
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+  white-space: nowrap;            /* 改行させない */
+  width: auto;
+}
+
+.block-btn:hover {
+  background-color: #99ddff;      /* ホバー時の色変化 */
+}
+
+#new-block-form {
+  display: flex;           /* 横並び */
+  align-items: center;     /* 縦中央揃え */
+  gap: 6px;                /* 入力とボタンの間 */
+}
+
+#new-block-form input {
+  flex: 1;                 /* 残り幅を入力欄が使う */
+  min-width: 80px;         /* 最低幅 */
+}
+
+#new-block-form button {
+  flex: 0 0 auto;          /* ボタンは固定幅 */
+}
+
+
+
+</style>
+</head>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<body>
+
+<!-- ✅ 左側の編集パネル -->
+<div id="editor-panel">
+  <button id="backBtn" type="button">← 戻る</button>
+ 
+	<h3 id="editor-title">メニュー管理</h3>
+
+
+<div id="block-section">
+  <button id="toggle-new-block" class="toggle-handle text-btn block-btn">＋　新規ブロック追加</button>
+  
+  <div id="new-block-form" class="input-row" style="display:none;">
+    <input type="text" id="new-block-name" placeholder="新しいブロック名" />
+    <button id="add-block-btn">＋ブロック追加</button>
+  </div>
+  
+</div>
+
+
+<div id="menu-section">
+<button id="toggle-new-menu" class="toggle-handle text-btn menu-btn">＋　新規メニュー追加</button>
+
+  <div id="new-menu-form" style="display:none;">
+	<div class="input-row">
+      <select id="block-select"></select>
+      <input type="text" id="new-menu-name" placeholder="メニュー名" />
+
+    </div>
+
+    <!-- メニュー入力 -->
+    <div class="input-row" id="new-menu-row">
+
+      <input type="number" id="new-menu-price-number" placeholder="金額" />
+      <input type="text" id="new-menu-price-text" placeholder="補足" />
+      <select id="new-menu-duration"></select>
+    </div>
+  
+	<div class="input-row">
+      <textarea id="new-menu-desc" placeholder="説明"></textarea>
+    </div>  
+	<div>
+      <button id="add-menu-btn">＋メニュー追加</button>
+	</div>
+  </div>
+  
+</div>
+
+
+
+  <ul id="block-list"></ul>
+
+
+  <button id="save-btn" style="margin-top:20px;">保存</button>
+  <div id="save-status" style="margin-top:5px;color:green;"></div>
+</div>
+
+<!-- ✅ 右側の表示エリア -->
+<div id="menu-page" class="page active">
+  <h2>お客様が見る画面</h2>
+  <div id="menu-container">読み込み中...</div>
+</div>
+
+<script>
+const postwebhookURL = "https://reservations.thinklayer.jp/";
+const webhookURL = "https://reservations.thinklayer.jp/";
+const urlParams = new URLSearchParams(window.location.search);
+const userId = urlParams.get("userId");
+const webappurl = urlParams.get("webappurl");
+const sheetId = urlParams.get("sheetId");
+
+window.onload = function() {
+  // CSS読み込み
+  const cssFile = urlParams.get("css") || "style.css";
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = cssFile;
+  document.head.appendChild(link);
+
+  // 背景設定
+  const bgImageParam = urlParams.get("bgimage");
+  const menuPage = document.getElementById("menu-page");
+  if (bgImageParam && bgImageParam.trim() !== "") {
+    menuPage.style.background = `url("${bgImageParam}") no-repeat center center`;
+  } else {
+    menuPage.style.background = 'url("background.jpg") no-repeat center center';
+  }
+  menuPage.style.backgroundSize = "cover";
+  menuPage.style.backgroundAttachment = "fixed";
+
+// 30分単位で0.5時間〜4時間まで（30〜240分）
+function populateDurationSelect(selectEl, defaultValue = 30) {
+  selectEl.innerHTML = "";
+  for (let min = 30; min <= 240; min += 30) {
+    const option = document.createElement("option");
+    option.value = min;
+    option.textContent = min + "分";
+    if (min === parseInt(defaultValue)) option.selected = true;
+    selectEl.appendChild(option);
+  }
+}
+
+// 新規メニュー追加の初期化時
+populateDurationSelect(document.getElementById("new-menu-duration"), 30);
+
+
+  // メニュー取得
+  let menuData = [];
+  const menuContainer = document.getElementById("menu-container");
+  let selectedMenuEl = null;
+
+  fetch(webhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ webappurl: webappurl, userId: userId, menu: true, sheetId: sheetId })
+  })
+  .then(res => res.json())
+  .then(data => {
+    menuData = data;
+    renderMenu();
+    updateBlockUI();
+  })
+  .catch(() => { menuContainer.innerHTML = "メニュー取得失敗"; });
+
+  // 表示用メニュー描画
+  function renderMenu() {
+    menuContainer.innerHTML = "";
+    let lastBlock = "";
+    menuData.forEach(item => {
+      const block = item[0] || '', title = item[1] || '', desc = item[2] || '', htmlDisplay = item[5] || '',duration = item[6] || 30;
+	  
+	  if(!title) return;
+	  
+      if (block !== lastBlock) {
+        const blockEl = document.createElement("div");
+        blockEl.className = "block-title";
+        blockEl.textContent = block;
+        menuContainer.appendChild(blockEl);
+        lastBlock = block;
+      }
+      const menuEl = document.createElement("div");
+      menuEl.className = "menu-item";
+      menuEl.innerHTML = `<div class="menu-title">${title}（¥${htmlDisplay}）</div><div class="menu-desc">${desc}</div>`;
+      menuEl.addEventListener("click", () => {
+        if (selectedMenuEl) selectedMenuEl.classList.remove("selected");
+        menuEl.classList.add("selected");
+        selectedMenuEl = menuEl;
+      });
+      menuContainer.appendChild(menuEl);
+    });
+  }
+
+  // 編集UI更新
+  function updateBlockUI() {
+    const blocks = [...new Set(menuData.map(i => i[0]).filter(Boolean))];
+    const blockList = document.getElementById("block-list");
+    const blockSelect = document.getElementById("block-select");
+
+    blockList.innerHTML = "";
+    blockSelect.innerHTML = "";
+
+ blocks.forEach(block => {
+  const li = document.createElement("li");
+  li.style.flexDirection = "column";
+
+  // header
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.alignItems = "center";
+  header.style.justifyContent = "flex-start";
+
+  const toggleBtn = document.createElement("button");
+  toggleBtn.textContent = "＋";
+  toggleBtn.classList.add("toggle-handle");
+  toggleBtn.style.width = "24px";
+  toggleBtn.style.height = "24px";
+  toggleBtn.style.marginRight = "6px";
+
+  // ブロック名をspanからinputに変更
+  const titleInput = document.createElement("input");
+  titleInput.type = "text";
+  titleInput.value = block;
+  titleInput.style.fontWeight = "bold";
+  titleInput.style.flex = "1";
+  titleInput.className = "edit-title";
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "×";
+  deleteBtn.className = "delete-btn";
+  deleteBtn.style.marginLeft = "6px";
+
+  header.appendChild(toggleBtn);
+  header.appendChild(titleInput);
+  header.appendChild(deleteBtn);
+  li.appendChild(header);
+
+  const menuArea = document.createElement("ul");
+  menuArea.style.display = "none";
+  menuArea.style.marginTop = "5px";
+  menuArea.style.paddingLeft = "20px";
+  li.appendChild(menuArea);
+
+  // トグル
+  toggleBtn.onclick = () => {
+    const open = menuArea.style.display === "block";
+    document.querySelectorAll("#block-list ul").forEach(u => u.style.display = "none");
+    document.querySelectorAll("#block-list .toggle-handle").forEach(b => b.textContent = "＋");
+    if (!open) {
+      toggleBtn.textContent = "－";
+      menuArea.style.display = "block";
+      showMenuList(block, menuArea);
+    } else {
+      toggleBtn.textContent = "＋";
+    }
+  };
+
+
+// ブロック名編集時に右画面も更新
+titleInput.addEventListener("input", () => {
+  const newBlockName = titleInput.value.trim();
+  if (!newBlockName) return;
+
+  // menuData内のブロック名を更新
+  menuData.forEach(m => {
+    if (m[0] === block) m[0] = newBlockName;
+  });
+
+  // 右画面のメニュー表示を再描画
+  renderMenu();
+
+  // ドロップダウン（ブロック選択）も更新
+  const blockSelect = document.getElementById("block-select");
+  [...blockSelect.options].forEach(opt => {
+    if (opt.value === block) opt.value = newBlockName;
+    if (opt.textContent === block) opt.textContent = newBlockName;
+  });
+
+  // 左側のliの内部 block 変数も更新
+  block = newBlockName;
+});
+
+
+
+
+
+  // 削除
+  deleteBtn.onclick = () => {
+    if (!confirm(`「${block}」ブロックを削除しますか？`)) return;
+    menuData = menuData.filter(i => i[0] !== block);
+    renderMenu();
+    updateBlockUI();
+  };
+
+  blockList.appendChild(li);
+
+  const opt = document.createElement("option");
+  opt.value = block;
+  opt.textContent = block;
+  blockSelect.appendChild(opt);
+});
+
+
+    // ドラッグ対応
+    Sortable.create(blockList, {
+      animation: 150,
+      handle: '.toggle-handle',
+      onEnd: evt => {
+        const oldIndex = evt.oldIndex;
+        const newIndex = evt.newIndex;
+        const currentBlocks = [...new Set(menuData.map(i => i[0]).filter(Boolean))];
+        const moved = currentBlocks.splice(oldIndex, 1)[0];
+        currentBlocks.splice(newIndex, 0, moved);
+
+        const newMenuData = [];
+        currentBlocks.forEach(blockName => {
+          menuData.filter(m => m[0] === blockName).forEach(m => newMenuData.push(m));
+        });
+        menuData = newMenuData;
+        renderMenu();
+        updateBlockUI();
+      }
+    });
+  }
+
+  // 特定ブロックのメニュー一覧表示
+  function showMenuList(blockName, container) {
+    container.innerHTML = "";
+
+	const menus = menuData.filter(i => i[0] === blockName && i[1]); // メニュー名があるものだけ
+
+    menus.forEach((m, index) => {
+      // 元のindex保持
+      m._originalIndex = menuData.findIndex(item => item === m);
+
+      const li = document.createElement("li");
+      li.style.display = "flex";
+      li.style.flexDirection = "column";
+      li.style.gap = "4px";
+
+      const topRow = document.createElement("div");
+      topRow.style.display = "flex";
+      topRow.style.alignItems = "center";
+      topRow.style.gap = "6px";
+
+	//○ボタン
+      const dragBtn = document.createElement("button");
+      dragBtn.style.width = "20px";
+      dragBtn.style.height = "20px";
+      dragBtn.style.fontSize = "12px";
+      dragBtn.style.padding = "0";
+      dragBtn.style.cursor = "grab";
+      dragBtn.classList.add("menu-drag-handle");
+
+	//メニュー名
+      const titleInput = document.createElement("input");
+      titleInput.type = "text";
+      titleInput.className = "edit-title";
+      titleInput.value = m[1];
+      titleInput.placeholder = "メニュー名";
+      titleInput.style.flex = "2";
+
+// 金額（数字）
+const priceNumberInput = document.createElement("input");
+priceNumberInput.type = "number";
+priceNumberInput.className = "edit-price-number";
+priceNumberInput.value = parseInt(m[3]) || "";
+priceNumberInput.placeholder = "金額";
+priceNumberInput.style.flex = "1";
+
+// 金額（文字列）
+const priceTextInput = document.createElement("input");
+priceTextInput.type = "text";
+priceTextInput.className = "edit-price-text";
+priceTextInput.value = m[4] || ""; // 新しい文字列用のカラム
+priceTextInput.placeholder = "補足";
+priceTextInput.style.flex = "1";
+
+	//施術時間
+const durationInput = document.createElement("select");
+durationInput.className = "edit-duration";
+populateDurationSelect(durationInput, m[6] || 30);
+durationInput.style.flex = "1";
+
+
+	//メニュー詳細
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "×";
+      deleteBtn.className = "delete-btn";
+
+      topRow.appendChild(dragBtn);
+      topRow.appendChild(titleInput);
+	  topRow.appendChild(priceNumberInput);
+	  topRow.appendChild(priceTextInput);
+      topRow.appendChild(durationInput);
+      topRow.appendChild(deleteBtn);
+
+      const descRow = document.createElement("div");
+      descRow.style.display = "flex";
+      descRow.style.gap = "6px";
+      descRow.style.alignItems = "flex-start";
+
+      const spacer = document.createElement("div");
+      spacer.style.width = "26px";
+
+      const descInput = document.createElement("textarea");
+      descInput.className = "edit-desc";
+      descInput.value = m[2] || "";
+      descInput.placeholder = "説明";
+      descInput.style.flex = "1";
+      descInput.style.height = "60px";
+
+      descRow.appendChild(spacer);
+      descRow.appendChild(descInput);
+
+      li.appendChild(topRow);
+      li.appendChild(descRow);
+      container.appendChild(li);
+
+      // 入力変更反映
+[titleInput, descInput, priceNumberInput, priceTextInput, durationInput].forEach(input => {
+  input.addEventListener("input", () => {
+    menuData[m._originalIndex] = [
+      m[0],                          // block
+      titleInput.value.trim(),        // title
+      descInput.value.trim(),         // desc
+      priceNumberInput.value.trim(),  // index3: 数字
+      priceTextInput.value.trim(),    // index4: 文字列
+      priceNumberInput.value.trim() + priceTextInput.value.trim(), // index5: 表示用料金
+      durationInput.value.trim() || "30" // index6: 施術時間
+    ];
+    renderMenu();
+  });
+});
+
+
+
+
+      // 削除
+      deleteBtn.onclick = () => {
+        menuData.splice(m._originalIndex, 1);
+        renderMenu();
+        showMenuList(blockName, container);
+      };
+    });
+
+    // ドラッグ対応
+    Sortable.create(container, {
+      animation: 150,
+      handle: '.menu-drag-handle',
+      onEnd: (evt) => {
+        const oldIndex = evt.oldIndex;
+        const newIndex = evt.newIndex;
+
+        const filteredMenus = menuData.filter(i => i[0] === blockName);
+        const moved = filteredMenus.splice(oldIndex, 1)[0];
+        filteredMenus.splice(newIndex, 0, moved);
+
+        let j = 0;
+        menuData.forEach((item, i) => {
+          if (item[0] === blockName) menuData[i] = filteredMenus[j++];
+        });
+
+        showMenuList(blockName, container);
+        renderMenu();
+      }
+    });
+  }
+
+  // ブロック追加
+  document.getElementById("add-block-btn").onclick = () => {
+    const name = document.getElementById("new-block-name").value.trim();
+    if (!name) return;
+	
+    menuData.push([name]);
+    renderMenu();
+	
+    updateBlockUI();
+    document.getElementById("new-block-name").value = "";
+  };
+
+  // メニュー追加
+document.getElementById("add-menu-btn").onclick = () => {
+  const block = document.getElementById("block-select").value;
+  const title = document.getElementById("new-menu-name").value.trim();
+  const desc = document.getElementById("new-menu-desc").value.trim();
+  const priceNum = document.getElementById("new-menu-price-number").value.trim() || "";
+  const priceText = document.getElementById("new-menu-price-text").value.trim() || "";
+  const duration = document.getElementById("new-menu-duration").value.trim() || "30";
+
+  if (!block || !title) return alert("ブロック名とメニュー名は必須です。");
+
+  const newMenu = [
+    block,
+    title,
+    desc,
+    priceNum,
+    priceText,
+    priceNum + priceText,
+    duration
+  ];
+
+  // 選択したブロックの最後の位置を取得
+  let insertIndex = menuData.map(m => m[0]).lastIndexOf(block) + 1;
+  if (insertIndex === 0) insertIndex = menuData.length; // ブロックがまだない場合は末尾
+
+  // 指定位置に挿入
+  menuData.splice(insertIndex, 0, newMenu);
+
+  renderMenu();
+
+  // 入力欄をクリア
+  document.getElementById("new-menu-name").value = "";
+  document.getElementById("new-menu-desc").value = "";
+  document.getElementById("new-menu-price-number").value = "";
+  document.getElementById("new-menu-price-text").value = "";
+  document.getElementById("new-menu-duration").value = "30";
+};
+
+
+// 保存
+document.getElementById("save-btn").onclick = () => {
+  const saveBtn = document.getElementById("save-btn");
+  const saveStatus = document.getElementById("save-status");
+  
+const sendMenuData = menuData.map(m => [
+  m[0], // block
+  m[1], // title
+  m[2], // desc
+  m[3], // 数字
+  m[4], // 文字列
+  m[6] // 施術時間
+]);
+
+
+
+  // ✅ 連打防止：ボタンを無効化＋テキスト変更
+  saveBtn.disabled = true;
+  const originalText = saveBtn.textContent;
+  saveBtn.textContent = "保存中...";
+  
+ 
+
+//送信処理 
+  function fetchWithRetry(url, options, retries = 3, delay = 5000) {
+  return fetch(url, options).catch(err => {
+    if (retries > 0) {
+      return new Promise(resolve => setTimeout(resolve, delay))
+        .then(() => fetchWithRetry(url, options, retries - 1, delay));
+    } else {
+      throw err;
+    }
+  });
+}
+
+  fetchWithRetry(postwebhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ webappurl: webappurl, userId: userId, upDateMenu: true, sendMenuData,sheetId: sheetId })
+  })
+  .then(res => res.json())
+  .then(() => {
+    saveStatus.textContent = "保存しました ✔";
+  })
+  .catch(err => {
+    alert("保存エラー: " + err);
+  })
+  .finally(() => {
+    // ✅ 完了後に元の状態へ戻す
+    saveBtn.disabled = false;  //再度ボタンが押せるようになる
+    saveBtn.textContent = originalText;
+    setTimeout(() => { saveStatus.textContent = ""; }, 3000);
+  });
+};
+};
+
+// 「＋ 新規ブロック追加」をクリックで展開／折りたたみ
+const toggleBlockBtn = document.getElementById("toggle-new-block");
+const newBlockForm = document.getElementById("new-block-form");
+
+toggleBlockBtn.addEventListener("click", () => {
+  const isOpen = newBlockForm.style.display === "flex"; // ← flexに変更
+  newBlockForm.style.display = isOpen ? "none" : "flex"; // ←展開時は flex
+  toggleBlockBtn.textContent = isOpen ? "＋　新規ブロック追加" : "－　新規ブロック追加";
+});
+
+
+// 「＋ 新規メニュー追加」をクリックで展開／折りたたみ
+const toggleMenuBtn = document.getElementById("toggle-new-menu");
+const newMenuForm = document.getElementById("new-menu-form");
+
+toggleMenuBtn.addEventListener("click", () => {
+  const isOpen = newMenuForm.style.display === "block";
+  newMenuForm.style.display = isOpen ? "none" : "block";
+  toggleMenuBtn.textContent = isOpen ? "＋　新規メニュー追加" : "－　新規メニュー追加";
+});
+
+//戻るボタン
+document.getElementById("backBtn").addEventListener("click", () => {
+  window.location.href = "https://demover222-1.github.io/settei/settei.html?userId=test" +
+      "&sheetId=" + sheetId +
+      "&webappurl=" + webappurl;
+});
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>スタッフ編集</title>
+
+
+<style>
+/* ================== 変数定義（全体共通） ================== */
+:root {
+  /* --- 全体 --- */
+  --color-heading: #4a4a4a;
+  --bg-selected: #7fcfff;
+  --bg-card-common: #f0f0f0d9;
+  --color-slot-string-common: #000000;
+
+  /* --- スタッフ --- */
+  --color-staff-name: #000000;
+  --color-staff-label: #000000;
+  --color-staff-exp: #000000;
+}
+
+/* ================== 全体レイアウト ================== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  display: flex;
+  font-family: Arial, sans-serif;
+  gap: 20px;
+  background-color: #f0f2f5;
+  min-height: 100vh;
+  padding: 20px;
+
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+h1, h2 {
+  text-align: center;
+  color: var(--color-heading);
+  text-shadow:
+    -1px -1px 3px #ffffffd9,
+     1px -1px 3px #ffffffd9,
+    -1px  1px 3px #ffffffd9,
+     1px  1px 3px #ffffffd9;
+}
+
+.page { display: none; padding-bottom: 80px; }
+.active { display: block; }
+
+/* ================== 左パネル（編集用） ================== */
+#editor-panel {
+  width: 500px;
+  flex-shrink: 0;
+  background: #f7f7f7cc;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 0 10px #00000022;
+  height: 95vh;
+  overflow-y: auto;
+  position: sticky;
+  top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  padding: 2px 0;
+}
+
+.input-row input,
+.input-row textarea,
+.input-row select,
+.input-row button {
+  flex: 1 1 auto;
+  min-width: 50px;
+  height: 36px;
+  padding: 6px 8px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+#editor-title {
+   text-align: center;
+ }
+
+ #backBtn {
+  padding: 6px 10px;
+  font-size: 13px;
+  background-color: #cccccc;
+  color: #333;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  align-self: flex-start; /* 左上に配置 */
+}
+#backBtn:hover {
+  background-color: #aaaaaa;
+}
+ 
+/* ================== スタッフリスト（左リストと新規フォーム統一） ================== */
+#staff-list li,
+#new-staff-form {
+  background-color: #ffffffD9;         /* 背景色統一 */
+  border: 1px solid rgba(0,0,0,0.12); /* 柔らかい枠線 */
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  padding: 10px;
+  margin-bottom: 12px;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#staff-list li > div.details {
+  background-color: #f9f9f9cc;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 6px;
+  gap: 6px;
+  display: none;
+  flex-direction: column;
+}
+
+#staff-list li.expanded {
+  border-color: var(--bg-selected);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+}
+
+#staff-list li {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#staff-list li:hover {
+  transform: translateY(-4px); /* 少し上に浮かせる */
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15); /* 影を強める */
+  border-color: var(--bg-selected); /* 任意で選択色に */
+}
+
+
+/* toggle ボタン */
+/* toggle ボタン */
+.toggle-handle {
+  flex: 0 0 auto;
+  height: 28px;               /* 高さは固定 */
+  padding: 0 8px;             /* 左右に余白を追加して文字幅に応じる */
+  font-size: 18px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid #99ddff;
+  background-color: #ccefff;
+  transition: 0.2s;
+  cursor: pointer;
+
+  /* 文字を完全中央に揃える */
+  display: flex;
+  align-items: center;
+  justify-content: center;    /* 左寄せではなく中央揃え */
+  white-space: nowrap;        /* 長い文字でも1行に収める */
+}
+
+
+.toggle-handle:hover {
+  background-color: #b3e0ff;
+}
+
+/* +ボタンを丸くして背景を白に */
+#staff-list .toggle-handle {
+  background-color: #ffffff;    /* 背景を白に */
+  border-radius: 50%;           /* 完全な丸に */
+  width: 28px;                  /* 必要に応じてサイズ調整 */
+  height: 28px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 28px;
+  text-align: center;
+  border: 1px solid #99ddff;   /* 枠線の色はそのまま */
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#staff-list .toggle-handle:hover {
+  background-color: #f0f8ff;    /* ホバー時に少し色変化させる */
+}
+
+#toggle-new-staff-btn {
+  display: inline-flex;      /* 横並び */
+  align-items: center;       /* 縦中央 */
+  justify-content: center;   /* 横中央 */
+  width: auto;               /* 幅を文字に合わせる */
+  flex: 0 0 auto;            /* flexで伸びないようにする */
+  padding: 4px 12px;         /* 文字周りの余白 */
+  white-space: nowrap;       /* 改行させない */
+  margin-bottom: 6px;
+}
+
+/* ＋だけのボタン用 */
+.plus-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+/* 文字付きボタン用 */
+.text-btn {
+  padding: 4px 12px;
+  height: 36px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+
+
+/* 削除ボタン */
+.delete-btn {
+  background: none;
+  border: none;
+  color: red;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* input/textarea/select/button 統一 */
+#staff-list input,
+#staff-list textarea,
+#staff-list select,
+#new-staff-form input,
+#new-staff-form textarea,
+#new-staff-form select {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 14px;
+  width: 100%;
+}
+
+#staff-list button,
+#new-staff-form button {
+  border-radius: 6px;
+  border: 1px solid #99ddff;
+  background-color: #ccefff;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+#staff-list button:hover,
+#new-staff-form button:hover {
+  background-color: #b3e0ff;
+}
+
+/* ================== 保存ボタン ================== */
+#save-btn { 
+	height: 40px; 
+	font-size: 16px;
+	  border-radius: 6px;
+  border: 1px solid #99ddff;
+  background-color: #b3e0ff;
+}
+
+#save-btn:hover {
+  background-color: #80ccff;
+}
+
+/* ================== 右画面（スタッフ表示用） ================== */
+#staff-page {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border-radius: 10px;
+  padding: 10px;
+  overflow-y: auto;
+  max-height: 95vh;
+}
+
+#staff-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 10px;
+  color: var(--color-heading);
+  font-style: italic;
+  text-shadow:
+    -1px -1px 3px #ffffffd9,
+     1px -1px 3px #ffffffd9,
+    -1px  1px 3px #ffffffd9,
+     1px  1px 3px #ffffffd9;
+}
+
+.staff-card {
+  background: var(--bg-card-common);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 14px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.staff-card.selected {
+  border: 2px solid var(--bg-selected);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.staff-photo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.staff-info { flex: 1; min-width: 0; }
+.nickName { font-weight: bold; font-size: 1.05rem; margin-bottom: 6px; color: var(--color-staff-name); word-break: break-word; }
+.block-label { font-weight: bold; margin-top: 8px; font-size: 0.9rem; color: var(--color-staff-label); }
+.staff-skill, .staff-fee, .introduction { color: var(--color-staff-exp); font-size: 0.95rem; margin-top: 4px; word-break: break-word; }
+
+/* ================== メディアクエリ（レスポンシブ） ================== */
+@media (max-width: 1024px) {
+  body { flex-direction: column; }
+  #editor-panel { width: 100%; height: auto; position: relative; top: 0; }
+  #staff-page { width: 100%; max-width: 100%; }
+}
+
+#staff-hidden-name,
+#staff-hidden-name-hurigana,
+#staff-sex,
+#staff-position,
+#staff-joining-date,
+#staff-gmail-calendar
+{
+ background: #e0e0e0;
+ }
+.staff-details-input {
+ background-color: #e0e0e0;
+}
+
+
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+</head>
+
+<body>
+
+<!-- 左パネル -->
+<div id="editor-panel">
+  <button id="backBtn" type="button">← 戻る</button>
+  <h3 id="editor-title">スタッフ管理</h3>
+
+<div id="staff-section">
+	  <div class="input-row">
+	<button id="toggle-new-staff-btn" class="toggle-handle text-btn">＋　新規スタッフ追加</button>
+
+	  </div>
+
+	  <!-- 新規スタッフ入力フォーム（最初は非表示） -->
+	  <div id="new-staff-form" style="display: none; margin-left: 30px;">
+		<div class="input-row">
+		  <input type="text" id="new-staff-name" placeholder="ニックネーム" />
+		</div>
+		<div class="input-row">
+		  <input type="text" id="new-staff-skill" placeholder="得意技術" />
+		  <input type="text" id="new-staff-image" placeholder="得意なイメージ" />
+		  <input type="number" id="new-staff-fee" placeholder="指名料" />
+		</div>
+		<div class="input-row">
+		  <textarea id="new-staff-intro" placeholder="紹介文" rows="3"></textarea>
+		</div>
+		<div class="input-row">
+		  <input type="text" id="staff-hidden-name" placeholder="氏名" />
+		  <input type="text" id="staff-hidden-name-hurigana" placeholder="フリガナ" />
+		  <select id="staff-sex">
+			<option value="">性別</option>
+			<option value="男性">男性</option>
+			<option value="女性">女性</option>
+			<option value="その他">その他</option>
+		  </select>
+		</div>
+		<div class="input-row">
+		  <input type="text" id="staff-position" placeholder="職位・ランク" />
+		  <input type="date" id="staff-joining-date" placeholder="入社日" />
+		  <input type="text" id="staff-gmail-calendar" placeholder="カレンダー用Gmail" />
+		</div>
+
+		<div class="input-row">
+		  <button id="add-staff-btn">＋スタッフ追加</button>
+		</div>
+  </div>
+</div>
+
+
+  <ul id="staff-list"></ul>
+
+  <button id="save-btn">保存</button>
+  <div id="save-status" style="margin-top:5px;color:green;"></div>
+</div>
+
+<!-- 右側 -->
+<div id="staff-page">
+  <h2 style="text-align:center;margin-bottom:12px;">お客様が見る画面</h2>
+  <div id="staff-container">読み込み中...</div>
+</div>
+
+<script>
+const postwebhookURL = "https://reservations.thinklayer.jp/";
+const webhookURL = "https://reservations.thinklayer.jp/";
+const urlParams = new URLSearchParams(window.location.search);
+const userId = urlParams.get("userId");
+const webappurl = urlParams.get("webappurl");
+const sheetId = urlParams.get("sheetId");
+
+let staffData = [];
+const staffListEl = document.getElementById("staff-list");
+const staffContainerEl = document.getElementById("staff-container");
+
+// 背景設定
+const staffPage = document.getElementById("staff-page");
+const bgImageParam = urlParams.get("bgimage");
+staffPage.style.backgroundImage = bgImageParam
+  ? `url("${bgImageParam}")`
+  : 'url("background.jpg")';
+staffPage.style.backgroundSize = "cover";
+staffPage.style.backgroundAttachment = "fixed";
+staffPage.style.backgroundPosition = "center center";
+
+function renderStaffList() {
+  staffListEl.innerHTML = "";
+  staffContainerEl.innerHTML = "";
+
+  staffData.forEach((staff, index) => {
+    // 左側リスト（折りたたみ対応）
+    const li = document.createElement("li");
+
+    const header = document.createElement("div");
+    header.style.display = "flex";
+    header.style.alignItems = "center";
+    header.style.gap = "6px";
+
+    const toggleBtn = document.createElement("button");
+    toggleBtn.className = "toggle-handle";
+    toggleBtn.textContent = "＋";
+
+    const nameInput = document.createElement("input");
+    nameInput.value = staff.nickName || "";
+    nameInput.placeholder = "ニックネーム";
+    nameInput.style.flex = "2";
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "×";
+    deleteBtn.className = "delete-btn";
+
+    header.append(toggleBtn, nameInput, deleteBtn);
+    li.appendChild(header);
+
+    // 左側リストの詳細（折りたたみ部分）
+    const details = document.createElement("div");
+    details.style.display = "none";
+    details.style.flexDirection = "column";
+    details.style.gap = "4px";
+    details.style.marginLeft = "30px";
+
+    const skillInput = document.createElement("input");
+    skillInput.value = staff.skill || "";
+    skillInput.placeholder = "得意技術";
+
+    const imageInput = document.createElement("input");
+    imageInput.value = staff.image || "";
+    imageInput.placeholder = "得意なイメージ";
+
+    const feeInput = document.createElement("input");
+    feeInput.type = "number";
+    feeInput.value = staff.fee || "";
+    feeInput.placeholder = "指名料";
+
+    const introInput = document.createElement("textarea");
+    introInput.value = staff.introduction || "";
+    introInput.placeholder = "紹介文";
+    introInput.rows = 2;
+
+    const fullNameInput = document.createElement("input");
+    fullNameInput.value = staff.fullName || "";
+    fullNameInput.placeholder = "氏名";
+    fullNameInput.classList.add("staff-details-input");
+
+    const furiganaInput = document.createElement("input");
+    furiganaInput.value = staff.furigana || "";
+    furiganaInput.placeholder = "フリガナ";
+    furiganaInput.classList.add("staff-details-input");
+
+    const sexSelect = document.createElement("select");
+    sexSelect.innerHTML = `
+      <option value="">性別</option>
+      <option value="男性">男性</option>
+      <option value="女性">女性</option>
+      <option value="その他">その他</option>
+    `;
+    sexSelect.value = staff.sex || "";
+    sexSelect.classList.add("staff-details-input");
+
+    const positionInput = document.createElement("input");
+    positionInput.value = staff.position || "";
+    positionInput.placeholder = "職位・ランク";
+    positionInput.classList.add("staff-details-input");
+
+const joiningDateInput = document.createElement("input");
+joiningDateInput.type = "date";  // ← type=date にする
+joiningDateInput.value = staff.joiningDate || "";
+// YYYY-MM-DD に変換して表示
+if (staff.joiningDate) {
+  const d = new Date(staff.joiningDate);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  joiningDateInput.value = `${yyyy}-${mm}-${dd}`; // ← ハイフン区切り
+} else {
+  joiningDateInput.value = "";
+}
+
+    joiningDateInput.classList.add("staff-details-input");
+
+    const gmailInput = document.createElement("input");
+    gmailInput.value = staff.gmail || "";
+    gmailInput.placeholder = "カレンダー用Gmail";
+    gmailInput.classList.add("staff-details-input");
+
+    const horizontalWrapper1 = document.createElement("div");
+    const horizontalWrapper2 = document.createElement("div");
+    const horizontalWrapper3 = document.createElement("div");
+    horizontalWrapper1.style.display = "flex"; horizontalWrapper1.style.gap = "6px";
+    horizontalWrapper2.style.display = "flex"; horizontalWrapper2.style.gap = "6px";
+    horizontalWrapper3.style.display = "flex"; horizontalWrapper3.style.gap = "6px";
+
+    horizontalWrapper1.append(skillInput, imageInput, feeInput);
+    horizontalWrapper2.append(fullNameInput, furiganaInput, sexSelect);
+    horizontalWrapper3.append(positionInput, joiningDateInput, gmailInput);
+
+    details.append(horizontalWrapper1, introInput, horizontalWrapper2, horizontalWrapper3);
+    li.appendChild(details);
+    li.style.borderRadius = "10px";
+    staffListEl.appendChild(li);
+
+    toggleBtn.onclick = () => {
+      if (details.style.display === "none") {
+        details.style.display = "flex";
+        toggleBtn.textContent = "－";
+      } else {
+        details.style.display = "none";
+        toggleBtn.textContent = "＋";
+      }
+    };
+
+    deleteBtn.onclick = () => {
+      staffData.splice(index, 1);
+      renderStaffList();
+    };
+
+    // 右側カード
+    const card = document.createElement("div");
+    card.className = "staff-card";
+    const photoUrl = staff.photo?.trim() ? staff.photo : "https://via.placeholder.com/80";
+
+    card.innerHTML = `
+      <img src="${photoUrl}" class="staff-photo" alt="スタッフ写真">
+      <div class="staff-info">
+        <div class="nickName">${staff.nickName || "(未設定)"}</div>
+
+        <div class="block-label skill-label" style="display:${staff.skill ? "block" : "none"}">得意な技術</div>
+        <div class="staff-skill" style="display:${staff.skill ? "block" : "none"}">　${staff.skill || ""}</div>
+
+        <div class="block-label image-label" style="display:${staff.image ? "block" : "none"}">得意なイメージ</div>
+        <div class="staff-image" style="display:${staff.image ? "block" : "none"}">　${staff.image || ""}</div>
+
+        <div class="block-label fee-label" style="display:${Number(staff.fee) > 0 ? "block" : "none"}">指名料</div>
+        <div class="staff-fee" style="display:${Number(staff.fee) > 0 ? "block" : "none"}">　${Number(staff.fee) > 0 ? "¥" + staff.fee : ""}</div>
+
+        <div class="block-label intro-label" style="display:${staff.introduction ? "block" : "none"}">紹介文</div>
+        <div class="introduction" style="display:${staff.introduction ? "block" : "none"}">　${staff.introduction || ""}</div>
+      </div>
+    `;
+
+    card.addEventListener("click", () => {
+      document.querySelectorAll('.staff-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+    });
+    staffContainerEl.appendChild(card);
+
+    // 編集入力反映（ラベルの表示非表示も更新）
+    [nameInput, skillInput, imageInput, feeInput, introInput,
+      fullNameInput, furiganaInput, sexSelect,
+      positionInput, joiningDateInput, gmailInput
+    ].forEach(input => {
+      input.addEventListener("input", () => {
+        staffData[index] = {
+          nickName: nameInput.value,
+          skill: skillInput.value,
+          image: imageInput.value,
+          fee: feeInput.value,
+          introduction: introInput.value,
+          fullName: fullNameInput.value,
+          furigana: furiganaInput.value,
+          sex: sexSelect.value,
+          position: positionInput.value,
+          joiningDate: joiningDateInput.value,
+          gmail: gmailInput.value,
+          photo: staff.photo || "",
+          faceFileId: staff.faceFileId || ""
+        };
+
+        const c = staffContainerEl.children[index];
+        if (!c) return;
+
+        c.querySelector(".nickName").textContent = nameInput.value || "(未設定)";
+
+        // 得意技術
+        const skillDiv = c.querySelector(".staff-skill");
+        const skillLabel = c.querySelector(".skill-label");
+        skillDiv.textContent = skillInput.value;
+        skillDiv.style.display = skillInput.value ? "block" : "none";
+        skillLabel.style.display = skillInput.value ? "block" : "none";
+
+        // 得意なイメージ
+        const imageDiv = c.querySelector(".staff-image");
+        const imageLabel = c.querySelector(".image-label");
+        imageDiv.textContent = imageInput.value;
+        imageDiv.style.display = imageInput.value ? "block" : "none";
+        imageLabel.style.display = imageInput.value ? "block" : "none";
+
+        // 紹介文
+        const introDiv = c.querySelector(".introduction");
+        const introLabel = c.querySelector(".intro-label");
+        introDiv.textContent = introInput.value;
+        introDiv.style.display = introInput.value ? "block" : "none";
+        introLabel.style.display = introInput.value ? "block" : "none";
+
+        // 指名料
+        const feeLabel = c.querySelector(".block-label.fee-label");
+        const feeDiv = c.querySelector(".staff-fee");
+        if (feeInput.value && Number(feeInput.value) > 0) {
+          feeDiv.textContent = "¥" + feeInput.value;
+          feeDiv.style.display = "block";
+          feeLabel.style.display = "block";
+        } else {
+          feeDiv.style.display = "none";
+          feeLabel.style.display = "none";
+        }
+      });
+    });
+  });
+
+  // 並べ替え
+  Sortable.create(staffListEl, {
+    animation: 150,
+    handle: '.toggle-handle',
+    onEnd: evt => {
+      const moved = staffData.splice(evt.oldIndex, 1)[0];
+      staffData.splice(evt.newIndex, 0, moved);
+      renderStaffList();
+    }
+  });
+}
+
+
+// 新規スタッフ追加
+document.getElementById("add-staff-btn").onclick = () => {
+  const name = document.getElementById("new-staff-name").value.trim();
+  if (!name) return alert("ニックネームは必須です");
+
+  const skill = document.getElementById("new-staff-skill").value.trim();
+  const image = document.getElementById("new-staff-image").value.trim();
+  const fee = document.getElementById("new-staff-fee").value.trim();
+  const intro = document.getElementById("new-staff-intro").value.trim();
+  const fullName = document.getElementById("staff-hidden-name").value.trim();
+  const furigana = document.getElementById("staff-hidden-name-hurigana").value.trim();
+  const sex = document.getElementById("staff-sex").value;
+  const position = document.getElementById("staff-position").value.trim();
+  const joiningDate = document.getElementById("staff-joining-date").value.trim();
+  const gmail = document.getElementById("staff-gmail-calendar").value.trim();
+
+  // すべての項目をオブジェクトに格納
+  staffData.push({
+    nickName: name,
+    skill,
+    fee,
+    introduction: intro,
+    fullName,
+    furigana,
+    sex,
+    position,
+    joiningDate,
+    gmail,
+	faceFileId:"",
+	image
+  });
+
+  // 入力欄リセット
+  document.getElementById("new-staff-name").value = "";
+  document.getElementById("new-staff-skill").value = "";
+  document.getElementById("new-staff-image").value = "";
+  document.getElementById("new-staff-fee").value = "";
+  document.getElementById("new-staff-intro").value = "";
+  document.getElementById("staff-hidden-name").value = "";
+  document.getElementById("staff-hidden-name-hurigana").value = "";
+  document.getElementById("staff-sex").value = "";
+  document.getElementById("staff-position").value = "";
+  document.getElementById("staff-joining-date").value = "";
+  document.getElementById("staff-gmail-calendar").value = "";
+
+  renderStaffList();
+};
+
+
+// 保存ボタン（例：サーバー送信）
+document.getElementById("save-btn").onclick = () => {
+  const saveBtn = document.getElementById("save-btn");
+  const saveStatus = document.getElementById("save-status");
+
+  saveBtn.disabled = true;
+  const originalText = saveBtn.textContent;
+  saveBtn.textContent = "保存中...";
+
+  function fetchWithRetry(url, options, retries = 3, delay = 5000) {
+  return fetch(url, options).catch(err => {
+    if (retries > 0) {
+      return new Promise(resolve => setTimeout(resolve, delay))
+        .then(() => fetchWithRetry(url, options, retries - 1, delay));
+    } else {
+      throw err;
+    }
+  });
+}
+
+  fetchWithRetry(postwebhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ webappurl: webappurl, userId:userId, sheetId: sheetId, upDateStaff: true, staffData })
+  })
+  .then(res => res.json())
+  .then(() => {
+    saveStatus.textContent = "保存しました ✔";
+  })
+  .catch(err => alert("保存エラー: " + err))
+  .finally(() => {
+    saveBtn.disabled = false;
+    saveBtn.textContent = originalText;
+    setTimeout(() => { saveStatus.textContent = ""; }, 3000);
+  });
+};
+
+// 初期データ取得（GASに合わせた構造を想定）
+fetch(webhookURL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ webappurl: webappurl, userId:userId,sheetId: sheetId, staff: true })
+})
+.then(res => res.json())
+.then(data => { 
+    staffData = data || []; 
+    renderStaffList(); 
+})
+.catch(() => { 
+    staffContainerEl.innerHTML = "スタッフ取得失敗"; 
+});
+
+// 「新規追加」フォームの開閉トグル
+const toggleNewStaffBtn = document.getElementById("toggle-new-staff-btn");
+const newStaffForm = document.getElementById("new-staff-form");
+
+toggleNewStaffBtn.onclick = () => {
+  const isHidden = newStaffForm.style.display === "none";
+  newStaffForm.style.display = isHidden ? "block" : "none";
+  toggleNewStaffBtn.textContent = isHidden ? "－　新規スタッフ追加" : "＋　新規スタッフ追加";
+};
+
+//戻るボタン
+document.getElementById("backBtn").addEventListener("click", () => {
+  window.location.href = "https://demover222-1.github.io/settei/settei.html?userId=test" +
+	"&sheetId=" + sheetId +
+	"&webappurl=" + webappurl;
+});
+
+</script>
+
+</body>
+</html>

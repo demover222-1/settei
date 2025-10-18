@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>その他設定</title>
+<style>
+/* ===== 全体レイアウト ===== */
+body {
+  background: #f0f2f5;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+  min-height: 100vh;
+  margin: 0;
+  color: #333;
+}
+
+/* ===== メインカード ===== */
+#editor-panel {
+  width: 100%;
+  max-width: 600px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  padding: 24px 28px;
+  box-sizing: border-box;
+}
+
+/* ===== 見出し ===== */
+#editor-title {
+  font-size: 22px;
+  color: #333;
+  text-align: center;
+  margin-bottom: 24px;
+  border-bottom: 3px solid #9bd1f5;
+  padding-bottom: 8px;
+}
+
+/* ===== セクションカード ===== */
+.settings-section {
+  background-color: #fafdff;
+  border: 1px solid #cfe9fa;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  padding: 16px 18px;
+  margin-bottom: 20px;
+}
+
+.settings-section h3 {
+  font-size: 16px;
+  color: #555;
+  border-left: 4px solid #9bd1f5;
+  padding-left: 8px;
+  margin-bottom: 12px;
+}
+
+/* ===== 入力エリア ===== */
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.input-row label {
+  width: 120px;
+  font-weight: bold;
+  color: #333;
+}
+
+.input-row select,
+.input-row input {
+  flex: 1;
+  min-width: 100px;
+  height: 36px;
+  padding: 6px 8px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #bcdff7;
+  background: #ffffff;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.input-row select:focus,
+.input-row input:focus {
+  outline: none;
+  border-color: #9bd1f5;
+  background: #ffffff;
+}
+
+/* ===== ボタン ===== */
+#save-btn {
+  display: block;
+  width: 100%;
+  padding: 12px 0;
+  font-size: 16px;
+  color: white;
+  background: #9bd1f5;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+#save-btn:hover {
+  background: #7bc4ef;
+}
+
+#save-status {
+  text-align: center;
+  margin-top: 10px;
+  font-weight: bold;
+  color: #3a8f3a;
+}
+
+/* ===== 戻るボタン ===== */
+#backBtn {
+  padding: 6px 10px;
+  font-size: 13px;
+  background-color: #cccccc;
+  color: #333;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  align-self: flex-start; /* 左上に配置 */
+}
+#backBtn:hover {
+  background-color: #aaaaaa;
+}
+
+/* ===== スマホ対応 ===== */
+@media (max-width: 600px) {
+  body {
+    padding: 20px;
+  }
+  #editor-panel {
+    padding: 20px;
+  }
+
+/* ===== スマホ対応 ===== */
+@media (max-width: 600px) {
+  body {
+    padding: 20px;
+  }
+  #editor-panel {
+    padding: 20px;
+  }
+
+  /* ← ここから下が修正版 */
+  .input-row {
+    flex-direction: column;  /* ラベルの下に要素をまとめる */
+    align-items: flex-start;
+  }
+
+  .input-row label {
+    width: 100%;
+    margin-bottom: 6px;
+  }
+
+  /* 時・分プルダウンを横並びにする用のラッパ */
+  .input-row select,
+  .input-row span {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  /* select と「時」「分」の間隔 */
+  .input-row select + span {
+    margin-left: 4px;
+    margin-right: 8px;
+  }
+
+  /* select の幅を縮める */
+  .input-row select {
+    width: auto;
+    min-width: 80px;
+  }
+}
+
+/* ===== 時・分を横並びに整列 ===== */
+.time-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.time-group select {
+  width: 80px;
+  height: 36px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid #bcdff7;
+  background: #f9fcff;
+}
+
+.time-group span {
+  display: inline-block;
+  color: #333;
+}
+
+/* ===== スマホ対応 ===== */
+@media (max-width: 600px) {
+  .input-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .input-row label {
+    width: 100%;
+    margin-bottom: 6px;
+  }
+
+  .time-group {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .time-group select {
+    width: 70px;
+  }
+}
+
+/* ===== スマホ対応（長いプレースホルダーを縮小） ===== */
+@media (max-width: 480px) {
+
+
+  .input-row input[type="text"] {
+    font-size: clamp(10px, 3vw, 14px);  /* ← 画面幅に応じて自動縮小 */
+    width: 100%;
+    white-space: nowrap;   /* 折り返し禁止 */
+    overflow: hidden;      /* はみ出し防止 */
+    text-overflow: ellipsis; /* 長すぎると「…」に */
+  }
+
+}
+
+
+</style>
+</head>
+<body>
+
+<!-- ✅ 設定パネル -->
+<div id="editor-panel">
+  <button id="backBtn" type="button">← 戻る</button>
+  <h3 id="editor-title">その他設定</h3>
+
+<div class="settings-section">
+  <h3>営業時間</h3>
+  <div class="input-row">
+    <label>営業開始時刻</label>
+    <div class="time-group">
+      <select id="start-hour"></select><span>時</span>
+      <select id="start-minute"></select><span>分</span>
+    </div>
+  </div>
+  <div class="input-row">
+    <label>営業終了時刻</label>
+    <div class="time-group">
+      <select id="end-hour"></select><span>時</span>
+      <select id="end-minute"></select><span>分</span>
+    </div>
+  </div>
+</div>
+
+
+  <div class="settings-section">
+    <h3>通知設定</h3>
+    <div class="input-row">
+      <label>LINEトークン</label>
+      <input type="text" id="line-token" placeholder="LINEトークンを入力" />
+    </div>
+    <div class="input-row">
+      <label>連絡先</label>
+      <input type="text" id="contact-info" placeholder="顧客からの連絡を受け取るGmail" />
+    </div>
+  </div>
+
+  <button id="save-btn">保存</button>
+  <div id="save-status"></div>
+</div>
+
+<script>
+// URLパラメータ取得
+const params = new URLSearchParams(window.location.search);
+const webappurl = params.get("webappurl");
+const webhookURL = "https://reservations.thinklayer.jp/";
+const userId = params.get("userId");
+const sheetId = params.get("sheetId");
+
+// フォーム・入力要素取得
+const form = document.querySelector("form");
+const gmailInput = document.getElementById("contact-info");
+const errorMessage = document.createElement("div");
+const panel = document.getElementById("editor-panel");
+panel.appendChild(errorMessage);
+errorMessage.style.color = "red";
+errorMessage.style.display = "none";
+
+// 保存ボタン取得
+const submitBtn = document.getElementById("save-btn");
+
+// 時・分プルダウン生成
+function populateTimeSelects() {
+  const hours = Array.from({length: 24}, (_, i) => i);
+  const minutes = [0, 15, 30, 45];
+  const selects = {
+    startHour: document.getElementById("start-hour"),
+    startMinute: document.getElementById("start-minute"),
+    endHour: document.getElementById("end-hour"),
+    endMinute: document.getElementById("end-minute")
+  };
+  hours.forEach(h => {
+    selects.startHour.add(new Option(String(h).padStart(2, '0'), h));
+    selects.endHour.add(new Option(String(h).padStart(2, '0'), h));
+  });
+  minutes.forEach(m => {
+    selects.startMinute.add(new Option(String(m).padStart(2, '0'), m));
+    selects.endMinute.add(new Option(String(m).padStart(2, '0'), m));
+  });
+}
+populateTimeSelects();
+
+
+// 2. 既存情報取得して初期値セット
+fetch(webhookURL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ webappurl: webappurl, sonota: true, sheetId: sheetId })
+})
+.then(res => res.json())
+.then(data => {
+  if(data.startHour !== undefined) document.getElementById("start-hour").value = data.startHour;
+  if(data.startMinute !== undefined) document.getElementById("start-minute").value = data.startMinute;
+  if(data.endHour !== undefined) document.getElementById("end-hour").value = data.endHour;
+  if(data.endMinute !== undefined) document.getElementById("end-minute").value = data.endMinute;
+  if(data.token) document.getElementById("line-token").value = data.token;
+  if(data.contact) document.getElementById("contact-info").value = data.contact;
+})
+.catch(err => console.error("既存情報の取得失敗:", err));
+
+
+
+// ======== 送信処理 ========
+submitBtn.addEventListener("click", async (e) => {
+  e.preventDefault();
+  errorMessage.style.display = "none";
+
+  const gmailValue = gmailInput.value.trim();
+  const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+  if (!gmailRegex.test(gmailValue)) {
+    alert("Gmailアドレス（@gmail.com）を正しく入力してください");
+    gmailInput.focus();
+    return;
+  }
+
+  // 連打防止
+  submitBtn.disabled = true;
+  submitBtn.textContent = "送信中...";
+
+  // 送信データ作成
+const data = {
+  setteikakutei: true,
+  sheetId: sheetId,
+  webappurl: webappurl,
+  startHour: document.getElementById("start-hour").value,
+  startMinute: document.getElementById("start-minute").value,
+  endHour: document.getElementById("end-hour").value,
+  endMinute: document.getElementById("end-minute").value,
+  token: document.getElementById("line-token").value,
+  contact: gmailValue
+};
+
+
+  console.log("設定データ:", data);
+
+  // 保存ステータス表示
+  const status = document.getElementById("save-status");
+  status.textContent = "保存しました";
+  setTimeout(() => status.textContent = "", 2000);
+
+  // ===== GAS へ非同期送信 =====
+  try {
+    await fetch(webhookURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+  } catch(err) {
+    console.error("予期せぬエラー:", err);
+    errorMessage.textContent = "送信中にエラーが発生しました。";
+    errorMessage.style.display = "block";
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "保存";
+  }
+});
+
+
+document.getElementById("backBtn").addEventListener("click", () => {
+  window.location.href = "https://demover222-1.github.io/settei/settei.html?userId=test" +
+	  "&sheetId=" + sheetId +
+      "&webappurl=" + webappurl;
+});
+</script>
+
+
+</body>
+</html>
