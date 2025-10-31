@@ -610,13 +610,6 @@ const webappurl = urlParams.get("webappurl");
 const sheetId = urlParams.get("sheetId");
 
 window.onload = function() {
-  // CSS読み込み
-  const cssFile = urlParams.get("css") || "style.css";
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = cssFile;
-  document.head.appendChild(link);
-
   // 背景設定
   const bgImageParam = urlParams.get("bgimage");
   const menuPage = document.getElementById("menu-page");
@@ -1107,3 +1100,4 @@ document.getElementById("backBtn").addEventListener("click", () => {
 </body>
 
 </html>
+
